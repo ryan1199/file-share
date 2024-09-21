@@ -57,6 +57,7 @@
 
                 <x-menu-item title="Hello" icon="o-sparkles" link="/" />
                 <x-menu-item title="User List" icon="o-users" link="{{ route('user.index') }}" />
+                <x-menu-item title="Archive Box List" icon="o-archive-box" link="{{ route('archive-box.index') }}" />
                 @guest
                     <x-menu-item title="Register" icon="o-user" link="{{ route('auth.register') }}" />
                     <x-menu-item title="Login" icon="o-user" link="{{ route('auth.login') }}" />

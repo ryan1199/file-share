@@ -12,6 +12,17 @@
             >
                 @livewire('user.edit', ['user' => $user])
             </x-drawer>
+            <x-drawer
+                wire:model="showCreateArchiveBox"
+                title="Archive Box"
+                subtitle="Create your archive box"
+                separator
+                with-close-button
+                close-on-escape
+                class="w-11/12 lg:w-1/3"
+            >
+                @livewire('archive-box.create')
+            </x-drawer>
         @endif
     @endauth
     <div class="w-full max-w-lg h-fit rounded-xl">
@@ -45,6 +56,7 @@
             <x-slot:actions>
                 @auth
                     @if ($user->id == Auth::id())
+                        <x-button label="Create Archive Box" icon="o-archive-box" @click="$wire.showCreateArchiveBox = true" />
                         <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showSetting = true" />
                     @endif
                 @endauth

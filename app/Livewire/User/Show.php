@@ -11,11 +11,14 @@ use Mary\Traits\Toast;
 class Show extends Component
 {
     use Toast;
+
     #[Locked]
     public User $user;
     public Profile $profile;
     #[Locked]
     public $showSetting = false;
+    public $showCreateArchiveBox = false;
+
     public function render()
     {
         $name = $this->user->name;

@@ -57,4 +57,8 @@ class Index extends Component
     {
         $this->resetPage();
     }
+    public function mount($search = '')
+    {
+        $this->search = $search;
+    }
 }
