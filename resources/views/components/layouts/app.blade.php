@@ -7,6 +7,12 @@
     <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Cropper.js --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
+    {{-- Flatpickr  --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
 
@@ -35,18 +41,22 @@
 
                 {{-- User --}}
                 @if($user = auth()->user())
-                    <x-menu-separator />
+                    {{-- <x-menu-separator /> --}}
 
-                    <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded">
+                    <x-list-item :item="$user" value="name" sub-value="email" link="{{ route('user.show', $user->slug) }}" no-separator no-hover class="-mx-0 !-my-0 rounded-lg bg-base-300 hover:bg-base-content/10 active:bg-base-200">
+                        <x-slot:avatar>
+                            <x-avatar :image="asset('storage/avatars/'.$user->avatar)" class="!w-full max-w-12 !rounded-full" />
+                        </x-slot:avatar>
                         <x-slot:actions>
                             @livewire('auth.logout')
                         </x-slot:actions>
                     </x-list-item>
 
-                    <x-menu-separator />
+                    {{-- <x-menu-separator /> --}}
                 @endif
 
                 <x-menu-item title="Hello" icon="o-sparkles" link="/" />
+                <x-menu-item title="User List" icon="o-users" link="{{ route('user.index') }}" />
                 @guest
                     <x-menu-item title="Register" icon="o-user" link="{{ route('auth.register') }}" />
                     <x-menu-item title="Login" icon="o-user" link="{{ route('auth.login') }}" />

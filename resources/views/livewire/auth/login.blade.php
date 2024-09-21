@@ -12,8 +12,14 @@
                 </div>
              
                 <x-slot:actions>
-                    <x-button label="Cancel" wire:click="cancel" />
-                    <x-button label="Log in" class="btn-primary" type="submit" spinner="login" />
+                    <div class="w-full flex flex-row justify-between">
+                        <x-button label="Forgot password? reset here" link="{{ route('auth.reset-password') }}" class="btn-info" />
+                        <div class="divider divider-horizontal divider-primary"></div>
+                        <div class="flex flex-row space-x-2">
+                            <x-button label="Cancel" class="btn-secondary" wire:click="cancel" />
+                            <x-button label="Log in" class="btn-primary" type="submit" spinner="login" />
+                        </div>
+                    </div>
                 </x-slot:actions>
             </x-form>
         </x-card>
