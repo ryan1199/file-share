@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\User;
+namespace App\Livewire\ArchiveBox\User;
 
-use App\Models\User;
-use Illuminate\Support\Collection;
+use App\Models\ArchiveBox;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
@@ -17,18 +17,20 @@ class Index extends Component
 
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
+    #[Locked]
+    public ArchiveBox $archiveBox;
 
     public function render()
     {
-        return view('livewire.user.index', [
+        return view('livewire.archive-box.user.index', [
             'users' => $this->users(),
         ]);
     }
     public function users()
     {
-        return User::with('profile')->when($this->search, function ($query) {
+        return $this->archiveBox->users()->withAggregate('archiveBoxes', 'permission')->when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('email', 'like', '%'.$this->search.'%');
-        })->orderBy(...array_values($this->sortBy))->select(['id', 'name', 'slug', 'email', 'avatar'])->simplePaginate(10);
+        })->orderBy(...array_values($this->sortBy))->simplePaginate(10);
     }
     #[Computed(cache: true)]
     public function headers(): array
@@ -37,9 +39,10 @@ class Index extends Component
         $headers = [];
         foreach ($columns as $column) {
             if (in_array($column, ['name', 'email', 'slug'])) {
-                $headers[] = ['key' => $column, 'label' => ucfirst(str_replace('_','', $column)), 'class' => 'w-20 text-base-content'];
+                $headers[] = ['key' => $column, 'label' => ucfirst(str_replace('_','', $column)), 'class' => 'table-cell text-base-content'];
             }
         }
+        $headers[] = ['key' => 'archive_boxes_permission', 'label' => 'Permission', 'class' => 'table-cell text-base-content'];
         return $headers;
     }
     public function updatedSearch()
@@ -49,9 +52,5 @@ class Index extends Component
     public function updatedSortBy()
     {
         $this->resetPage();
-    }
-    public function mount($search = '')
-    {
-        $this->search = $search;
     }
 }

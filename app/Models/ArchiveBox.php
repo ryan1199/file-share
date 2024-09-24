@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ArchiveBox extends Model
 {
@@ -31,6 +32,10 @@ class ArchiveBox extends Model
     }
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->using(ArchiveBoxUser::class);
+        return $this->belongsToMany(User::class)->using(ArchiveBoxUser::class)->withPivot('permission');
+    }
+    public function files(): HasMany
+    {
+        return $this->hasMany(File::class);
     }
 }

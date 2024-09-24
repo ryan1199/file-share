@@ -22,29 +22,12 @@ class Edit extends Component
     public User $user;
     #[Locked]
     public Profile $profile;
-    #[Validate('required', as: 'username', message: 'Please provide a username')]
-    #[Validate('min:2', as: 'username', message: 'Your username must be at least 2 characters')]
-    #[Validate('max:30', as: 'username', message: 'Your username must be no more than 30 characters')]
     public $name;
-    #[Validate('required', as: 'password', message: 'Please provide a secure password')]
-    #[Validate('min:8', as: 'password', message: 'Your password must be at least 8 characters')]
-    #[Validate('max:100', as: 'password', message: 'Your password must be no more than 100 characters')]
-    #[Validate('confirmed', as: 'password', message: 'Password not confirmed')]
     public $password;
-    #[Validate('same:password', as: 'password', message: 'Password do not match')]
     public $password_confirmation;
-    #[Validate('required', as: 'avatar', message: 'Please provide an avatar')]
-    #[Validate('image', as: 'avatar', message: 'Please provide an image file type')]
-    #[Validate('max:10240', as: 'avatar', message: 'Max allowed size is 10 MB')]
     public $avatar;
-    #[Validate('required', as: 'date of birth', message: 'Please provide a date of birth')]
-    #[Validate('date_format:Y-m-d', as: 'date of birth', message: 'Please provide a valid date format (YYYY-MM-DD)')]
     public $dob;
-    #[Validate(rule: 'required', attribute: 'links', as: 'links', message: 'Please provide at least one valid link')]
-    #[Validate(rule: 'url:http,https', attribute: 'links.*', as: 'link', message: 'Please provide some valid links')]
     public array $links = [];
-    #[Validate('required', as: 'status', message: 'Please provide a status')]
-    #[Validate('max:100', as: 'status', message: 'Maximum length of status is 100 characters')]
     public $status;
     #[Locked]
     public $changedAvatar = false;
@@ -143,7 +126,9 @@ class Edit extends Component
         });
         if ($result) {
             if ($this->changedAvatar) {
-                Storage::delete($old_avatar);
+                if ($old_avatar != 'default-avatar-white.svg') {
+                    Storage::disk('public')->delete('avatars/'.$old_avatar);
+                }
                 $this->avatar->storeAs('avatars', $avatar_name, 'public');
                 $this->avatar = asset('storage/avatars/'.$this->user->avatar);
             }
@@ -151,6 +136,7 @@ class Edit extends Component
             $this->dob = $this->profile->date_of_birth;
             $this->links = explode(" ", $this->profile->links) ?? array();
             $this->status = $this->profile->status;
+            $this->reset('changedAvatar');
             $this->success('Profile updated successfully.', position: 'toast-bottom');
         } else {
             $this->error('Failed to update profile.', position: 'toast-bottom');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\ArchiveBox\Index as ArchiveBoxIndex;
+use App\Livewire\ArchiveBox\Show as ArchiveBoxShow;
 use App\Livewire\Auth\EmailVerification;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Logout;
@@ -32,10 +33,11 @@ Route::get('reset-password', ResetPassword::class)->name('auth.reset-password');
 Route::get('email-verification/{token?}', EmailVerification::class)->name('auth.email-verification');
 Route::get('user/{user:slug}', Show::class)->name('user.show');
 Route::get('user-list/{search?}', Index::class)->name('user.index');
+Route::get('archive-box/{archiveBox:slug}', ArchiveBoxShow::class)->name('archive-box.show');
 Route::get('archive-box-list', ArchiveBoxIndex::class)->name('archive-box.index');
 Route::get('/mailable/email-verification', function () {
     $user = User::first();
  
     return new RequestEmailVerificationSended($user);
 })->name('test.mail.email-verification');
-// implement queue for email sending (not ye)
+// implement queue for email sending (not yet)

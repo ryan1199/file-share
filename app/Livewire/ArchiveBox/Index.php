@@ -16,7 +16,6 @@ class Index extends Component
     use Toast, WithPagination, WithoutUrlPagination;
 
     public string $search = '';
-    public bool $drawer = false;
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
 
     public function render()
@@ -30,12 +29,6 @@ class Index extends Component
         return ArchiveBox::withAggregate('users', 'name')->when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('description', 'like', '%'.$this->search.'%');
         })->orderBy(...array_values($this->sortBy))->simplePaginate(10);
-    }
-    public function clear(): void
-    {
-        $this->reset();
-        $this->resetPage();
-        $this->success('Filters cleared.', position: 'toast-bottom');
     }
     #[Computed(cache: true)]
     public function headers(): array

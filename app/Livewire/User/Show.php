@@ -2,7 +2,6 @@
 
 namespace App\Livewire\User;
 
-use App\Models\Profile;
 use App\Models\User;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -14,9 +13,9 @@ class Show extends Component
 
     #[Locked]
     public User $user;
-    public Profile $profile;
     #[Locked]
     public $showSetting = false;
+    #[Locked]
     public $showCreateArchiveBox = false;
 
     public function render()

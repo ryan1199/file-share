@@ -1,5 +1,5 @@
-<div>
-    <x-header title="User List" separator progress-indicator>
+<x-card shadow>
+    <x-header title="Keeper List" separator progress-indicator>
         <x-slot:middle class="!justify-end">
             <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
         </x-slot:middle>
@@ -16,6 +16,9 @@
             @scope('cell_email', $user)
                 <x-button label="{{ $user->email }}" link="{{ 'mailto:'.$user->email }}" icon="o-envelope" tooltip="{{ 'Mail '.$user->email }}" external responsive class="w-fit flex-nowrap" />
             @endscope
+            @scope('cell_archive_boxes_permission', $user)
+                <x-badge value="{{ $user->archive_boxes_permission }}" class="badge-info" />
+            @endscope
         </x-table>
     </x-card>
-</div>
+</x-card>

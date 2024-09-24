@@ -1,4 +1,4 @@
-<div class="w-full h-full flex flex-col justify-center items-center overflow-y-auto">
+<div class="w-full h-full flex flex-col overflow-y-auto">
     @auth
         @if ($user->id == Auth::id())
             <x-drawer
@@ -8,8 +8,7 @@
                 separator
                 with-close-button
                 close-on-escape
-                class="w-11/12 lg:w-1/3"
-            >
+                class="w-11/12 lg:w-1/3">
                 @livewire('user.edit', ['user' => $user])
             </x-drawer>
             <x-drawer
@@ -19,14 +18,13 @@
                 separator
                 with-close-button
                 close-on-escape
-                class="w-11/12 lg:w-1/3"
-            >
+                class="w-11/12 lg:w-1/3">
                 @livewire('archive-box.create')
             </x-drawer>
         @endif
     @endauth
-    <div class="w-full max-w-lg h-fit rounded-xl">
-        <x-card shadow>
+    <div class="w-full h-fit flex flex-row flex-wrap">
+        <x-card class="w-full max-w-lg h-fit mr-4 mb-4" shadow>
             <div class="pb-6">
                 {{ $status }}
             </div>
@@ -62,5 +60,6 @@
                 @endauth
             </x-slot:actions>
         </x-card>
+        @livewire('user.archive-box.index', ['user' => $user])
     </div>
 </div>

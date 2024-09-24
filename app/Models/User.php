@@ -66,6 +66,6 @@ class User extends Authenticatable
     }
     public function archiveBoxes(): BelongsToMany
     {
-        return $this->belongsToMany(ArchiveBox::class)->using(ArchiveBoxUser::class);
+        return $this->belongsToMany(ArchiveBox::class)->using(ArchiveBoxUser::class)->withPivot('permission');
     }
 }

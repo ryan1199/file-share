@@ -22,7 +22,7 @@ class Create extends Component
     public $name;
     #[Validate('required', as: 'archive box\'s description', message: 'Please provide an archive box\'s description')]
     #[Validate('min:3', as: 'archive box\'s description', message: 'Your archive box\'s description must be at least 2 characters')]
-    #[Validate('max:1000', as: 'archive box\'s description', message: 'Your archive box\'s description must be no more than 30 characters')]
+    #[Validate('max:1000', as: 'archive box\'s description', message: 'Your archive box\'s description must be no more than 1000 characters')]
     public $description;
     #[Validate('required', as: 'archive box\'s cover', message: 'Please provide an archive box\'s cover')]
     #[Validate('image', as: 'archive box\'s cover', message: 'Please provide an image file type')]
@@ -55,14 +55,14 @@ class Create extends Component
                 'cover' => $cover_name,
                 'private' => $this->private,
             ]);
-            $archiveBox->users()->attach([$this->user()->id => ['permission' => 3]]);
+            $archiveBox->users()->attach($this->user()->id, ['permission' => 3]);
             $result = true;
             return $archiveBox;
         }, attempts: 100);
         if ($result) {
             $this->cover->storeAs('covers', $cover_name, 'public');
             $this->reset();
-            $this->success('Archive box created successfully.', position: 'toast-bottom');
+            $this->success('Archive box created successfully.', position: 'toast-bottom', redirectTo: route('archive-box.show', $archiveBox->slug));
         } else {
             $this->error('Failed to create archive box.', position: 'toast-bottom');
         }
