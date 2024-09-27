@@ -38,4 +38,8 @@ class ArchiveBox extends Model
     {
         return $this->hasMany(File::class);
     }
+    public function idsOfJoinedUsers()
+    {
+        return $this->users()->pluck('users.id');
+    }
 }

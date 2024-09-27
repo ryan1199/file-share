@@ -31,6 +31,7 @@ class Edit extends Component
     public $status;
     #[Locked]
     public $changedAvatar = false;
+    public $selectedTab = 'profile';
     public function render()
     {
         return view('livewire.user.edit');

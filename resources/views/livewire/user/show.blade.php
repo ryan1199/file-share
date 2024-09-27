@@ -8,7 +8,7 @@
                 separator
                 with-close-button
                 close-on-escape
-                class="w-11/12 lg:w-1/3">
+                class="w-fit">
                 @livewire('user.edit', ['user' => $user])
             </x-drawer>
             <x-drawer
@@ -18,7 +18,7 @@
                 separator
                 with-close-button
                 close-on-escape
-                class="w-11/12 lg:w-1/3">
+                class="w-fit">
                 @livewire('archive-box.create')
             </x-drawer>
         @endif

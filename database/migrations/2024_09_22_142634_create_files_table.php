@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('path');
             $table->string('extension');
             $table->bigInteger('size');
+            $table->bigInteger('views')->default(0);
+            $table->bigInteger('downloads')->default(0);
             $table->timestamps();
         });
     }

@@ -19,6 +19,10 @@ class Index extends Component
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
     #[Locked]
     public ArchiveBox $archiveBox;
+    #[Locked]
+    public $showUpdateUser = false;
+    #[Locked]
+    public $showNewUser = false;
 
     public function render()
     {

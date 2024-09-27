@@ -66,6 +66,10 @@ class User extends Authenticatable
     }
     public function archiveBoxes(): BelongsToMany
     {
-        return $this->belongsToMany(ArchiveBox::class)->using(ArchiveBoxUser::class)->withPivot('permission');
+        return $this->belongsToMany(ArchiveBox::class)->using(ArchiveBoxUser::class)->withPivot('permission')->withTimestamps();
+    }
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(File::class, table: 'like')->using(Like::class)->withTimestamps();
     }
 }
