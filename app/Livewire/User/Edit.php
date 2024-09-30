@@ -53,6 +53,7 @@ class Edit extends Component
     }
     public function updateProfile()
     {
+        $this->authorize('update', [Profile::class, $this->profile]);
         $data = [
             'name' => $this->name,
             'dob' => $this->dob,
@@ -155,6 +156,7 @@ class Edit extends Component
     }
     public function updatePassword()
     {
+        $this->authorize('update', [User::class, $this->user]);
         $validated = Validator::make(
             data: [
                 'password' => $this->password,

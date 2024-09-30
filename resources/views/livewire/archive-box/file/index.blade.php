@@ -7,14 +7,27 @@
 
     <x-card>
         <x-table :headers="$this->headers" :rows="$files" :sort-by="$sortBy" with-pagination >
-            @scope('cell_slug', $file)
-                <x-button label="{{ $file->slug }}" link="{{ route('file.show', $file->slug) }}" icon="o-document" tooltip="{{ 'View '.$file->name }}" responsive class="w-fit flex-nowrap" />
+            @scope('cell_slug', $file, $archiveBox)
+                @switch($archiveBox->private)
+                    @case(false)
+                        <x-button label="{{ $file->slug }}" link="{{ route('file.show', $file->slug) }}" icon="o-document" tooltip="{{ 'View '.$file->name }}" responsive class="w-fit flex-nowrap" />
+                        @break
+                    @default
+                        @auth
+                            @if ($archiveBox->users->whereIn('pivot.permission', [1,2,3])->contains(Auth::id()))
+                                <x-button label="{{ $file->slug }}" link="{{ route('file.show', $file->slug) }}" icon="o-document" tooltip="{{ 'View '.$file->name }}" responsive class="w-fit flex-nowrap" />
+                            @endif
+                        @endauth
+                        @guest
+                            <x-button label="{{ $file->slug }}" icon="o-document" tooltip="{{ Str::of('You don\'t have access to view '.$file->name)->toHtmlString() }}" responsive class="w-fit flex-nowrap btn-disabled" />
+                        @endguest
+                @endswitch
             @endscope
             @scope('cell_extension', $file)
-                <x-badge value="{{ $file->extension }}" class="badge-info whitespace-nowrap" />
+                <x-badge value="{{ $file->extension }}" class="badge-accent whitespace-nowrap" />
             @endscope
             @scope('cell_size', $file)
-                <x-badge value="{{ Number::fileSize($file->size) }}" class="badge-info whitespace-nowrap" />
+                <x-badge value="{{ Number::fileSize($file->size) }}" class="badge-accent whitespace-nowrap" />
             @endscope
             @scope('cell_actions', $file, $archiveBox)
                 <div class="w-fit h-fit flex flex-row space-x-2 space-y-0">
@@ -36,6 +49,9 @@
                                     <x-button label="Download" link="{{ route('file.download', $file->slug) }}" icon="o-document-arrow-down" tooltip="{{ 'Download '.$file->name }}" no-wire-navigate responsive class="w-fit flex-nowrap" />
                                 @endif
                             @endauth
+                            @guest
+                                <x-button label="Download" icon="o-document-arrow-down" tooltip="{{ Str::of('You don\'t have access to download '.$file->name)->toHtmlString() }}" responsive class="w-fit flex-nowrap btn-disabled" />
+                            @endguest
                     @endswitch
                 </div>
             @endscope

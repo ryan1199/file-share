@@ -9,7 +9,7 @@
     </x-header>
 
     @if ($archiveBoxes == [])
-        <x-alert title="Archive Box not found" icon="o-exclamation-triangle" class="bg-error text-error-content" />
+        <x-alert title="Archive Box not found" icon="o-exclamation-triangle" class="bg-error text-error-content" shadow />
     @else
         <x-carousel :slides="$archiveBoxes" />
     @endif

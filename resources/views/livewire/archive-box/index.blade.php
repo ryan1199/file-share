@@ -18,9 +18,9 @@
             @endscope
             @scope('cell_private', $archiveBox)
                 @if ($archiveBox->private)
-                    <x-badge value="Private" class="badge-error" />
+                    <x-badge value="Private" class="badge-accent" />
                 @else
-                    <x-badge value="Public" class="badge-success" />
+                    <x-badge value="Public" class="badge-accent" />
                 @endif
             @endscope
             @scope('cell_users_name', $archiveBox)

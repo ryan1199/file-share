@@ -10,6 +10,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
+use Illuminate\Support\Str;
 
 class Create extends Component
 {
@@ -40,11 +41,12 @@ class Create extends Component
     }
     public function store()
     {
+        $this->authorize('create', [File::class, $this->archiveBox]);
         $this->validate();
         $slug = File::generateSlug();
-        $file_name = $this->file->hashName();
         $file_size = $this->file->getSize();
-        $file_extension = $this->file->extension();
+        $file_extension = $this->file->getClientOriginalExtension();
+        $file_name = Str::random(100).'.'.$file_extension;
         $result = false;
         DB::transaction(function () use ($slug, $file_name, $file_size, $file_extension, &$result) {
             $this->archiveBox->files()->create([
@@ -69,5 +71,13 @@ class Create extends Component
     {
         $this->resetExcept('archiveBox');
         $this->success('Form cleared.', position: 'toast-bottom');
+    }
+    public function updatedFile()
+    {
+        $this->name = $this->file->getClientOriginalName();
+    }
+    public function updated()
+    {
+        $this->resetValidation();
     }
 }

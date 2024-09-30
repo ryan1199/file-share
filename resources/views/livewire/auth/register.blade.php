@@ -3,7 +3,7 @@
         <x-card title="Register" subtitle="Register your account" separator progress-indicator="register">
             <x-form wire:submit="register">
                 <x-file wire:model="avatar" label="Avatar" hint="Select an image" accept="image/*" crop-after-change>
-                    <img src="{{ $avatar ?? asset('storage/avatars/default-avatar-white.svg') }}" class="h-40 rounded-lg" />
+                    <img src="{{ $avatar ?? asset('storage/avatars/default-avatar-white.svg') }}" class="h-40" />
                 </x-file>
                 <x-input type="text" label="Name" icon="o-user" hint="Your full name" wire:model="name" error-field="name" clearable inline />
                 <x-input type="email" label="E-Mail" icon="o-at-symbol" hint="Your active e-mail" wire:model="email" error-field="email" clearable inline />

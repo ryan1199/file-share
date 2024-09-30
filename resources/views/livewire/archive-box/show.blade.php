@@ -27,16 +27,16 @@
     @endauth
     <div class="w-full h-fit grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
         <div class="w-full h-fit mr-4 mb-4 flex flex-col space-x-0 space-y-4">
-            <div class="w-full h-fit bg-cover bg-center bg-no-repeat rounded-btn" style="background-image: url({{ asset('storage/covers/'.$cover) }});">
+            <x-card class="w-full h-fit !p-0 bg-cover bg-center bg-no-repeat" style="background-image: url({{ asset('storage/covers/'.$cover) }});">
                 <x-card title="{{ Str::of($name)->toHtmlString() }}" shadow class="w-full h-fit bg-base-300/60 backdrop-blur-[1.5px]">
                     <div class="h-fit max-h-40 overflow-y-auto">
                         {{ $description }}
                     </div>
                     <x-slot:menu>
                         @if ($private)
-                            <x-badge value="Private" class="badge-error" />
+                            <x-badge value="Private" class="badge-accent" />
                         @else
-                            <x-badge value="Public" class="badge-success" />
+                            <x-badge value="Public" class="badge-accent" />
                         @endif
                     </x-slot:menu>
                     <x-slot:actions>
@@ -50,7 +50,7 @@
                         @endauth
                     </x-slot:actions>
                 </x-card>
-            </div>
+            </x-card>
             <div class="w-full h-fit">
                 @livewire('archive-box.user.index', ['archiveBox' => $archiveBox])
             </div>

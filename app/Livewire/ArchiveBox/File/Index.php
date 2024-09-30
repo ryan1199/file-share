@@ -3,6 +3,8 @@
 namespace App\Livewire\ArchiveBox\File;
 
 use App\Models\ArchiveBox;
+use App\Models\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -45,10 +47,14 @@ class Index extends Component
         $headers = [];
         foreach ($columns as $column) {
             if (in_array($column, ['name', 'description', 'slug', 'extension', 'size'])) {
-                $headers[] = ['key' => $column, 'label' => ucfirst(str_replace('_','', $column)), 'class' => 'table-cell text-base-content'];
+                if ($column == 'slug') {
+                    $headers[] = ['key' => $column, 'label' => ucfirst(str_replace('_','', $column)), 'class' => 'table-cell text-base-content'];
+                    $headers[] = ['key' => 'actions', 'label' => 'Actions', 'class' => 'table-cell text-base-content', 'sortable' => false];
+                } else {
+                    $headers[] = ['key' => $column, 'label' => ucfirst(str_replace('_','', $column)), 'class' => 'table-cell text-base-content'];
+                }
             }
         }
-        $headers[] = ['key' => 'actions', 'label' => 'Actions', 'class' => 'table-cell text-base-content', 'sortable' => false];
         return $headers;
     }
     public function updatedSearch()
@@ -59,13 +65,15 @@ class Index extends Component
     {
         $this->resetPage();
     }
-    public function editFile($file_id)
+    public function editFile(File $file)
     {
+        $this->authorize('update', [File::class, $file, $this->archiveBox]);
         $this->showEditFile = true;
-        $this->dispatch('file.edit', $file_id)->to(Edit::class);
+        $this->dispatch('file.edit', $file)->to(Edit::class);
     }
-    public function deleteFile($file_id)
+    public function deleteFile(File $file)
     {
-        $this->dispatch('file.delete', $file_id)->to(Edit::class);
+        $this->authorize('delete', [File::class, $file, $this->archiveBox]);
+        $this->dispatch('file.delete', $file)->to(Edit::class);
     }
 }

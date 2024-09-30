@@ -20,19 +20,39 @@
             {{ $file->name }}
         </x-slot:title>
         <x-slot:menu>
-            <x-badge value="{{ $file->extension }}" class="badge-info whitespace-nowrap" />
-            <x-badge value="{{ Number::fileSize($file->size) }}" class="badge-info whitespace-nowrap" />
+            <x-badge value="{{ $file->extension }}" class="badge-accent whitespace-nowrap" />
+            <x-badge value="{{ Number::fileSize($file->size) }}" class="badge-accent whitespace-nowrap" />
         </x-slot:menu>
         <x-slot:actions>
             <x-button label="Download" link="{{ route('file.download', $file->slug) }}" icon="o-document-arrow-down" tooltip="{{ 'Download '.$file->name }}" no-wire-navigate responsive class="w-fit flex-nowrap" />
         </x-slot:actions>
     </x-card>
     <x-card shadow separator>
-        <object data="{{ route('file.preview', $file->slug) }}" class="w-full h-full rounded-btn">Test</object>
+        @switch($file->extension)
+            @case(in_array($file->extension, $imageFileExtensions))
+                <img src="{{ route('file.preview', $file->slug) }}" alt="{{ $file->name }}" class="w-full h-fit">
+                @break
+            @case(in_array($file->extension, $videoFileExtensions))
+                <video class="w-full h-fit" controls loop>
+                    <source src="{{ route('file.preview', $file->slug) }}">
+                    <x-alert title="We are sorry, we can not display this file" icon="o-exclamation-triangle" class="bg-error text-error-content" shadow />
+                </video>
+                @break
+            @case(in_array($file->extension, $audioFileExtensions))
+                <audio class="w-full h-fit" controls loop>
+                    <source src="{{ route('file.preview', $file->slug) }}">
+                    <x-alert title="We are sorry, we can not display this file" icon="o-exclamation-triangle" class="bg-error text-error-content" shadow />
+                </audio>
+                @break
+            @default
+                <object data="{{ route('file.preview', $file->slug) }}" class="w-full min-h-screen">
+                    <x-alert title="We are sorry, we can not display this file" icon="o-exclamation-triangle" class="bg-error text-error-content" shadow />
+                </object>
+        @endswitch
     </x-card>
     <div class="stats stats-vertical sm:stats-horizontal shadow">
         <div class="stat">
-            <div class="stat-figure text-secondary">
+            <div class="stat-figure text-primary">
                 <x-icon name="o-arrow-down-circle" class="w-8 h-8" />
             </div>
             <div class="stat-title">Downloads</div>
@@ -43,7 +63,7 @@
         </div>
         
         <div class="stat">
-            <div class="stat-figure text-secondary">
+            <div class="stat-figure text-primary">
                 <x-icon name="o-eye" class="w-8 h-8" />
             </div>
             <div class="stat-title">Views</div>
@@ -54,7 +74,7 @@
         </div>
         
         <div @auth wire:click="like" @endauth class="stat">
-            <div class="stat-figure text-secondary">
+            <div class="stat-figure text-primary">
                 <x-icon name="o-heart" class="w-8 h-8" />
             </div>
             <div class="stat-title">Likes</div>

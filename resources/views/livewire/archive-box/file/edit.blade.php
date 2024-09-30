@@ -13,6 +13,6 @@
  
     <x-slot:actions>
         <x-button label="Cancel" class="btn-secondary" wire:click="cancel" />
-        <x-button label="Create" class="btn-primary" type="submit" spinner="update" />
+        <x-button label="Update" class="btn-primary" type="submit" spinner="update" />
     </x-slot:actions>
 </x-form>

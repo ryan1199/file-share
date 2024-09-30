@@ -60,11 +60,12 @@ class Create extends Component
     {
         $this->resetPage(pageName: 'new-users-page');
     }
-    public function newUser($user_id, $permission)
+    public function newUser(User $user, $permission)
     {
+        $this->authorize('update', [ArchiveBox::class,$this->archiveBox]);
         $result = false;
-        DB::transaction(function () use ($user_id, $permission, &$result) {
-            $this->archiveBox->users()->attach($user_id, ['permission' => $permission]);
+        DB::transaction(function () use ($user, $permission, &$result) {
+            $this->archiveBox->users()->attach($user->id, ['permission' => $permission]);
             $result = true;
         }, attempts: 100);
         if ($result) {

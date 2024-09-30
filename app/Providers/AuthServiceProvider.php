@@ -3,6 +3,15 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+
+use App\Models\ArchiveBox;
+use App\Models\File;
+use App\Models\Profile;
+use App\Models\User;
+use App\Policies\ArchiveBoxPolicy;
+use App\Policies\FilePolicy;
+use App\Policies\ProfilePolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -13,7 +22,10 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        User::class => UserPolicy::class,
+        Profile::class => ProfilePolicy::class,
+        ArchiveBox::class => ArchiveBoxPolicy::class,
+        File::class => FilePolicy::class,
     ];
 
     /**

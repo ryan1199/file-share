@@ -38,7 +38,7 @@
             </x-slot:actions>
         </x-list-item>
     @empty
-        <x-alert title="User not found" icon="o-exclamation-triangle" class="bg-error text-error-content" />
+        <x-alert title="User not found" icon="o-exclamation-triangle" class="bg-error text-error-content" shadow />
     @endforelse
     <x-pagination :rows="$users" wire:model.live="perPage" />
 </div>

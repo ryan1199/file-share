@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="sunset" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html data-theme="corporate" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
@@ -62,11 +62,9 @@
                     <x-menu-item title="Register" icon="o-user" link="{{ route('auth.register') }}" />
                     <x-menu-item title="Login" icon="o-user" link="{{ route('auth.login') }}" />
                 @endguest
-                <x-menu-sub title="Settings" icon="o-cog-6-tooth">
-                    <x-menu-item title="Wifi" icon="o-wifi" link="####" />
-                    <x-menu-item title="Archives" icon="o-archive-box" link="####" />
-                </x-menu-sub>
+                <x-menu-item title="Theme" icon="o-swatch" @click="$dispatch('mary-toggle-theme')" />
             </x-menu>
+            <x-theme-toggle darkTheme="business" lightTheme="corporate" class="hidden" />
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}

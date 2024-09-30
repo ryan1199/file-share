@@ -3,7 +3,7 @@
         <x-tab name="profile" label="Profile" icon="o-users">
             <x-form wire:submit="updateProfile">
                 <x-file wire:model="avatar" label="Avatar" hint="Select an image" accept="image/*" crop-after-change>
-                    <img src="{{ $avatar ?? asset('storage/avatars/default-avatar-white.svg') }}" class="h-40 rounded-lg" />
+                    <img src="{{ $avatar ?? asset('storage/avatars/default-avatar-white.svg') }}" class="h-40" />
                 </x-file>
                 <x-input type="text" label="Name" icon="o-user" hint="Your full name" wire:model="name" error-field="name" clearable />
                 <x-datepicker label="Date" wire:model="dob" icon="o-calendar" hint="Your date of birth" error-field="dob" :config="['dateFormat' => 'Y-m-d']" />

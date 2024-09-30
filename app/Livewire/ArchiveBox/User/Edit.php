@@ -3,6 +3,7 @@
 namespace App\Livewire\ArchiveBox\User;
 
 use App\Models\ArchiveBox;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -59,11 +60,12 @@ class Edit extends Component
     {
         $this->resetPage(pageName: 'update-users-page');
     }
-    public function updateUserPermission($user_id, $permission)
+    public function updateUserPermission(User $user, $permission)
     {
+        $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
         $result = false;
-        DB::transaction(function () use ($user_id, $permission, &$result) {
-            $this->archiveBox->users()->where('user_id', $user_id)->update([
+        DB::transaction(function () use ($user, $permission, &$result) {
+            $this->archiveBox->users()->where('user_id', $user->id)->update([
                 'permission' => $permission
             ]);
             $result = true;
@@ -74,11 +76,12 @@ class Edit extends Component
             $this->error('Failed to update user permission', position: 'toast-bottom');
         }
     }
-    public function removeUser($user_id)
+    public function removeUser(User $user)
     {
+        $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
         $result = false;
-        DB::transaction(function () use ($user_id, &$result) {
-            $this->archiveBox->users()->detach($user_id);
+        DB::transaction(function () use ($user, &$result) {
+            $this->archiveBox->users()->detach($user->id);
             $result = true;
         }, attempts: 100);
         if ($result) {

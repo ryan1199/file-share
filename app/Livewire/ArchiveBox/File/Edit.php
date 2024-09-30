@@ -4,6 +4,7 @@ namespace App\Livewire\ArchiveBox\File;
 
 use App\Models\ArchiveBox;
 use App\Models\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,7 @@ class Edit extends Component
     }
     public function update()
     {
+        $this->authorize('update', [File::class, $this->file, $this->archiveBox]);
         $data = [
             'name' => $this->name,
             'description' => $this->description,
@@ -140,7 +142,7 @@ class Edit extends Component
                 $this->uploadFile->storeAs($this->archiveBox->slug, $uploadFileName, 'local');
             }
             $this->reset('changedUploadFile');
-            $this->success('File uploaded successfully', position: 'toast-bottom');
+            $this->success('File updated successfully', position: 'toast-bottom');
         } else {
             $this->error('Failed to update file', position: 'toast-bottom');
         }
@@ -148,21 +150,19 @@ class Edit extends Component
     #[On('file.delete')]
     public function deleteFile(File $file)
     {
-        if ($this->archiveBox) {
-            $result = false;
-            $fileName = $file->path;
-            DB::transaction(function () use ($file, &$result) {
-                $file->delete();
-                $result = true;
-            }, attempts: 100);
-            if ($result) {
-                Storage::delete($this->archiveBox->slug.'/'.$fileName);
-                $this->success('File deleted successfully', position: 'toast-bottom');
-            } else {
-                $this->error('Failed to delete file', position: 'toast-bottom');
-            }
+        $this->authorize('delete', [File::class, $file, $this->archiveBox]);
+        $result = false;
+        $fileName = $file->path;
+        DB::transaction(function () use ($file, &$result) {
+            $file->likes()->detach();
+            $file->delete();
+            $result = true;
+        }, attempts: 100);
+        if ($result) {
+            Storage::delete($this->archiveBox->slug.'/'.$fileName);
+            $this->success('File deleted successfully', position: 'toast-bottom');
         } else {
-            $this->error('Archive box not found', position: 'toast-bottom');
+            $this->error('Failed to delete file', position: 'toast-bottom');
         }
     }
 }

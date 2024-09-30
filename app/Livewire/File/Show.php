@@ -4,6 +4,7 @@ namespace App\Livewire\File;
 
 use App\Models\File;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Mary\Traits\Toast;
 
@@ -15,6 +16,55 @@ class Show extends Component
     public $likes = 0;
     public $views = 0;
     public $downloads = 0;
+    #[Locked]
+    public $imageFileExtensions = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'tiff',
+        'bmp',
+        'ico',
+        'svg',
+        'heic',
+        'avif',
+    ];
+    #[Locked]
+    public $audioFileExtensions = [
+        'mp3',
+        'wav',
+        'ogg',
+        'aac',
+        'flac',
+        'm4a',
+        'wma',
+        'alac',
+        'aiff',
+        'mid',
+        'midi',
+        'amr',
+    ];
+    #[Locked]
+    public $videoFileExtensions = [
+        'mp4',
+        'avi',
+        'mov',
+        'mkv',
+        'webm',
+        'flv',
+        'mpg',
+        'mpeg',
+        'wmv',
+        'rmvb',
+        'vob',
+        'swf',
+        'gif',
+        '3gp',
+        '3gpp',
+        '3g2',
+        '3gp2',
+    ];
 
     public function render()
     {

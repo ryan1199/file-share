@@ -3,23 +3,17 @@
 namespace App\Livewire\ArchiveBox;
 
 use App\Models\ArchiveBox;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\WithoutUrlPagination;
-use Livewire\WithPagination;
 use Mary\Traits\Toast;
 
 class Edit extends Component
 {
-    use Toast, WithFileUploads, WithPagination, WithoutUrlPagination;
+    use Toast, WithFileUploads;
 
     #[Locked]
     public ArchiveBox $archiveBox;
@@ -29,25 +23,10 @@ class Edit extends Component
     public $private = false;
     #[Locked]
     public $changedCover = false;
-    public string $searchKeeper = '';
-    public string $searchUser = '';
-    #[Locked]
-    public array $availableSortBy = [
-        ['id' => 'name','name' => 'Name',],
-        ['id' => 'created_at','name' => 'Created At',],
-        ['id' => 'slug','name' => 'Slug',],
-    ];
-    public $sortByKeeper = 'name';
-    public $sortByUser = 'name';
-    public bool $ascKeeper = true;
-    public bool $ascUser = true;
     
     public function render()
     {
-        return view('livewire.archive-box.edit', [
-            'keepers' => $this->keepers(),
-            'users' => $this->users(),
-        ]);
+        return view('livewire.archive-box.edit');
     }
     public function mount(ArchiveBox $archiveBox)
     {
@@ -55,11 +34,11 @@ class Edit extends Component
         $this->name = $this->archiveBox->name;
         $this->description = $this->archiveBox->description;
         $this->cover = asset('storage/covers/'.$this->archiveBox->cover);
-        $this->private = $this->archiveBox->private;
-        $this->keepersId();
+        $this->private = (bool) $this->archiveBox->private;
     }
     public function updateArchiveBox()
     {
+        $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
         $data = [
             'name' => $this->name,
             'description' => $this->description,
@@ -143,84 +122,8 @@ class Edit extends Component
     {
         $this->name = $this->archiveBox->name;
         $this->description = $this->archiveBox->description;
-        $this->private = $this->archiveBox->private;
+        $this->private = (bool) $this->archiveBox->private;
         $this->cover = asset('storage/covers/'.$this->archiveBox->cover);
         $this->success('Form cleared', position: 'toast-bottom');
-    }
-    public function keepers()
-    {
-        return $this->archiveBox->users()->withAggregate('archiveBoxes', 'permission')->when($this->searchKeeper, function ($query) {
-            $query->where('name', 'like', '%'.$this->searchKeeper.'%')->orWhere('slug', 'like', '%'.$this->searchKeeper.'%')->orWhere('email', 'like', '%'.$this->searchKeeper.'%');
-        })->orderBy($this->sortByKeeper, $this->ascKeeper ? 'asc' : 'desc')->simplePaginate(10, pageName: 'keepers-page');
-    }
-    public function users()
-    {
-        return User::whereNotIn('id', $this->keepersId())->when($this->searchUser, function ($query) {
-            $query->where('name', 'like', '%'.$this->searchUser.'%')->orWhere('slug', 'like', '%'.$this->searchUser.'%')->orWhere('email', 'like', '%'.$this->searchUser.'%');
-        })->orderBy($this->sortByUser, $this->ascUser ? 'asc' : 'desc')->simplePaginate(10, pageName: 'users-page');
-    }
-    public function updatedSearchKeeper()
-    {
-        $this->resetPage(pageName: 'keepers-page');
-    }
-    public function updatedSearchUser()
-    {
-        $this->resetPage(pageName: 'users-page');
-    }
-    public function updatedSortByKeeper()
-    {
-        $this->resetPage(pageName: 'keepers-page');
-    }
-    public function updatedSortByUser()
-    {
-        $this->resetPage(pageName: 'users-page');
-    }
-    public function updateUserPermission($user_id, $permission)
-    {
-        $result = false;
-        DB::transaction(function () use ($user_id, $permission, &$result) {
-            $this->archiveBox->users()->where('user_id', $user_id)->update([
-                'permission' => $permission
-            ]);
-            $result = true;
-        }, attempts: 100);
-        if ($result) {
-            $this->success('User permission updated successfully', position: 'toast-bottom');
-        } else {
-            $this->error('Failed to update user permission', position: 'toast-bottom');
-        }
-    }
-    public function removeUser($user_id)
-    {
-        $this->keepersId();
-        $result = false;
-        DB::transaction(function () use ($user_id, &$result) {
-            $this->archiveBox->users()->detach($user_id);
-            $result = true;
-        }, attempts: 100);
-        if ($result) {
-            $this->success('User removed from archive box successfully', position: 'toast-bottom');
-        } else {
-            $this->error('Failed to remove user from archive box', position: 'toast-bottom');
-        }
-        unset($this->keepersId);
-    }
-    #[Locked]
-    public function keepersId()
-    {
-        return $this->keepers()->pluck('id');
-    }
-    public function newUser($user_id, $permission)
-    {
-        $result = false;
-        DB::transaction(function () use ($user_id, $permission, &$result) {
-            $this->archiveBox->users()->attach($user_id, ['permission' => $permission]);
-            $result = true;
-        }, attempts: 100);
-        if ($result) {
-            $this->success('User added to archive box successfully', position: 'toast-bottom');
-        } else {
-            $this->error('Failed to add user to archive box', position: 'toast-bottom');
-        }
     }
 }
