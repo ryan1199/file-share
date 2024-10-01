@@ -59,8 +59,10 @@
                 <x-menu-item title="User List" icon="o-users" link="{{ route('user.index') }}" />
                 <x-menu-item title="Archive Box List" icon="o-archive-box" link="{{ route('archive-box.index') }}" />
                 @guest
-                    <x-menu-item title="Register" icon="o-user" link="{{ route('auth.register') }}" />
-                    <x-menu-item title="Login" icon="o-user" link="{{ route('auth.login') }}" />
+                    <x-menu-item title="Register" icon="o-clipboard-document-list" link="{{ route('auth.register') }}" />
+                    <x-menu-item title="Login" icon="o-arrow-left-on-rectangle" link="{{ route('auth.login') }}" />
+                    <x-menu-item title="Reset Password" icon="o-lock-closed" link="{{ route('auth.reset-password') }}" />
+                    <x-menu-item title="Email Verification" icon="o-check-badge" link="{{ route('auth.email-verification') }}" />
                 @endguest
                 <x-menu-item title="Theme" icon="o-swatch" @click="$dispatch('mary-toggle-theme')" />
             </x-menu>

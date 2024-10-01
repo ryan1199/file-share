@@ -11,14 +11,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RequestResetPasswordSended extends Mailable
+class NewPasswordCreated extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $user)
+    public function __construct(public User $user, public $password)
     {
         //
     }
@@ -30,7 +30,7 @@ class RequestResetPasswordSended extends Mailable
     {
         return new Envelope(
             from: new Address('admin@file.share.com', 'The Admin'),
-            subject: 'Reset Password Confirmation',
+            subject: 'New Password',
         );
     }
 
@@ -40,10 +40,7 @@ class RequestResetPasswordSended extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.auth.reset-password',
-            with: [
-                'url' => route('auth.reset-password', $this->user->token),
-            ]
+            markdown: 'mail.auth.new-password',
         );
     }
 

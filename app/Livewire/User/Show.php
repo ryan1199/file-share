@@ -25,7 +25,7 @@ class Show extends Component
         $slug = $this->user->slug;
         $avatar = $this->user->avatar;
         $dob = $this->user->profile->date_of_birth;
-        $links = explode(" ", $this->user->profile->links);
+        $links = ($this->user->profile->links != null) ? explode(" ", $this->user->profile->links) : null;
         $status = $this->user->profile->status;
         return view('livewire.user.show', [
             'name' => $name,

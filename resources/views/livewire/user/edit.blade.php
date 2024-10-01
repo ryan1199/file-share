@@ -17,7 +17,7 @@
             </x-form>
         </x-tab>
         <x-tab name="password" label="Password" icon="o-sparkles">
-            <x-form wire:submit="updatePassword">
+            <x-form wire:submit="updatePassword" x-data="{ show_password: false, show_password_confirmation: false }">
                 <x-input x-bind:type="show_password ? 'text' : 'password'" label="Password" icon="o-lock-closed" hint="Secure password" wire:model="password" error-field="password" clearable />
                 <div class="w-fit ml-auto">
                     <x-toggle label="Show password" x-model="show_password" right tight />

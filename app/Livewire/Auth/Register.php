@@ -57,6 +57,9 @@ class Register extends Component
                 'avatar' => $avatar_name,
                 'token' => $token,
             ]);
+            $user->profile()->create([
+                'date_of_birth' => now()
+            ]);
             $result = true;
             return $user;
         }, attempts: 100);

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -32,8 +33,17 @@ class Login extends Component
             'password' => $this->password
         ], $this->rememberMe);
         if ($user) {
-            $this->reset();
-            $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('welcome'));
+            $user = User::find(Auth::id());
+            if ($user->email_verified_at == null) {
+                Auth::logout();
+                session()->invalidate();
+                session()->regenerateToken();
+                $this->reset();
+                $this->error('Email not verified, please verify your email address first.', position: 'toast-bottom');
+            } else {
+                $this->reset();
+                $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('welcome'));
+            }
         } else {
             $this->error('Invalid credentials. Please try again.', position: 'toast-bottom');
         }

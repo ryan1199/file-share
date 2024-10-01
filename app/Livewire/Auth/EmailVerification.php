@@ -47,23 +47,19 @@ class EmailVerification extends Component
         } elseif ($user != null && $validCredentials && $user->email_verified_at != null) {
             $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('welcome'));
         } else {
-            if ($user->email_verified_at != null) {
-                $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('welcome'));
+            $token = Str::random(100);
+            $result = false;
+            DB::transaction(function () use ($token, $user, &$result) {
+                $user->update([
+                    'token' => $token,
+                ]);
+                $result = true;
+            }, attempts: 10);
+            if ($result) {
+                Mail::to($user)->send(new RequestEmailVerificationSended($user));
+                $this->success('Verification email sent successfully. Check your inbox.', position: 'toast-bottom');
             } else {
-                $token = Str::random(100);
-                $result = false;
-                DB::transaction(function () use ($token, $user, &$result) {
-                    $user->update([
-                        'token' => $token,
-                    ]);
-                    $result = true;
-                }, attempts: 10);
-                if ($result) {
-                    Mail::to($user)->send(new RequestEmailVerificationSended($user));
-                    $this->success('Verification email sent successfully. Check your inbox.', position: 'toast-bottom');
-                } else {
-                    $this->error('Failed to send verification email. Please try again later.', position: 'toast-bottom');
-                }
+                $this->error('Failed to send verification email. Please try again later.', position: 'toast-bottom');
             }
         }
         $this->reset();

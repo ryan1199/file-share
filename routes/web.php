@@ -30,11 +30,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', Welcome::class)->name('welcome');
-Route::get('register', Register::class)->name('auth.register');
-Route::get('login', Login::class)->name('auth.login');
-Route::get('logout', Logout::class)->name('auth.logout');
-Route::get('reset-password', ResetPassword::class)->name('auth.reset-password');
-Route::get('email-verification/{token?}', EmailVerification::class)->name('auth.email-verification');
+Route::get('register', Register::class)->middleware('should.not.login')->name('auth.register');
+Route::get('login', Login::class)->middleware('should.not.login')->name('auth.login');
+Route::get('logout', Logout::class)->middleware('should.login')->name('auth.logout');
+Route::get('reset-password/{token?}', ResetPassword::class)->middleware(['valid.token', 'should.not.login'])->name('auth.reset-password');
+Route::get('email-verification/{token?}', EmailVerification::class)->middleware(['valid.token', 'should.not.login'])->name('auth.email-verification');
 Route::get('user/{user:slug}', Show::class)->name('user.show');
 Route::get('user-list/{search?}', Index::class)->name('user.index');
 Route::get('archive-box/{archiveBox:slug}', ArchiveBoxShow::class)->name('archive-box.show');
@@ -48,5 +48,5 @@ Route::get('/mailable/email-verification', function () {
     return new RequestEmailVerificationSended($user);
 })->name('test.mail.email-verification');
 // implement queue for email sending (not yet)
-// create middleware (almost)
+// create middleware (done)
 // create policy (done)

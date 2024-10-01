@@ -28,9 +28,11 @@
             {{ $status }}
         </div>
         <div class="w-full h-fit flex flex-row flex-wrap">
-            @foreach($links as $link)
-                <x-button label="{{ Str::between($link, '://', '/') }}" link="{{ $link }}" icon="o-link" tooltip="{{ $link }}" class="mr-1 mb-1" external />
-            @endforeach
+            @if ($links != null)
+                @foreach($links as $link)
+                    <x-button label="{{ Str::between($link, '://', '/') }}" link="{{ $link }}" icon="o-link" tooltip="{{ $link }}" class="mr-1 mb-1" external />
+                @endforeach
+            @endif
         </div>
      
         <x-slot:figure class="p-4 pb-0">
