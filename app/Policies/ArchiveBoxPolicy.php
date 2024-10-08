@@ -44,9 +44,10 @@ class ArchiveBoxPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, ArchiveBox $archiveBox): bool
+    public function delete(User $user, ArchiveBox $archiveBox): Response
     {
-        //
+        $archiveBox->load('users');
+        return $archiveBox->users->where('pivot.permission', 3)->contains($user->id) ? Response::allow() : Response::deny('You do not have required permission');
     }
 
     /**

@@ -9,7 +9,7 @@
                 with-close-button
                 close-on-escape
                 class="w-fit">
-                @livewire('archive-box.edit', ['archiveBox' => $archiveBox])
+                @livewire('archive-box.edit', ['archiveBox' => $archiveBox], key(rand()))
             </x-drawer>
         @endif
         @if ($archiveBox->users->whereIn('pivot.permission', [2,3])->contains(Auth::id()))
@@ -21,7 +21,7 @@
                 with-close-button
                 close-on-escape
                 class="w-fit">
-                @livewire('archive-box.file.create', ['archiveBox' => $archiveBox])
+                @livewire('archive-box.file.create', ['archiveBox' => $archiveBox], key(rand()))
             </x-drawer>
         @endif
     @endauth
@@ -52,11 +52,11 @@
                 </x-card>
             </x-card>
             <div class="w-full h-fit">
-                @livewire('archive-box.user.index', ['archiveBox' => $archiveBox])
+                @livewire('archive-box.user.index', ['archiveBox' => $archiveBox], key(rand()))
             </div>
         </div>
         <div class="w-full h-fit">
-            @livewire('archive-box.file.index', ['archiveBox' => $archiveBox])
+            @livewire('archive-box.file.index', ['archiveBox' => $archiveBox], key(rand()))
         </div>
     </div>
 </div>

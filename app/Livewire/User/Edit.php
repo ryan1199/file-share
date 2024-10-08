@@ -2,6 +2,10 @@
 
 namespace App\Livewire\User;
 
+use App\Events\ArchiveBox\Deleted as ArchiveBoxDeleted;
+use App\Events\ArchiveBox\User\PermissionChanged;
+use App\Events\User\Deleted;
+use App\Events\User\Updated;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +52,7 @@ class Edit extends Component
         $this->name = $this->user->name;
         $this->avatar = asset('storage/avatars/'.$this->user->avatar);
         $this->dob = $this->profile->date_of_birth;
-        $this->links = explode(" ", $this->profile->links) ?? array();
+        $this->links = ($this->profile->links != null) ? explode(" ", $this->profile->links) : ['https://example.com'];
         $this->status = $this->profile->status;
     }
     public function updateProfile()
@@ -140,6 +144,7 @@ class Edit extends Component
             $this->status = $this->profile->status;
             $this->reset('changedAvatar');
             $this->success('Profile updated successfully.', position: 'toast-bottom');
+            Updated::dispatch($this->user);
         } else {
             $this->error('Failed to update profile.', position: 'toast-bottom');
         }
@@ -205,5 +210,96 @@ class Edit extends Component
     public function updatedAvatar()
     {
         $this->changedAvatar = true;
+    }
+    public function deleteAccount()
+    {
+        $this->authorize('delete', [User::class, $this->user]);
+        $user_name = $this->user->name;
+        $user_avatar = $this->user->avatar;
+        $user_archive_boxes = $this->user->archiveBoxes()->get();
+        $archive_boxes = [];
+        $deleted_archive_boxes = [];
+        $changed_permission_of_user_in_archive_box = [];
+        $result = false;
+        DB::transaction(function () use (&$result, $user_archive_boxes, &$archive_boxes, &$deleted_archive_boxes, &$changed_permission_of_user_in_archive_box) {
+            foreach ($user_archive_boxes as $archive_box) {
+                $archive_box->load('users');
+                $archive_box->load('files');
+                if (count($archive_box->users) > 1) {
+                    $userIdsWithPermissionLevel3 = [];
+                    $userIdsWithPermissionLevel2 = [];
+                    $userIdsWithPermissionLevel1 = [];
+                    $archive_boxes[] = $archive_box->id;
+                    foreach ($archive_box->users as $user) {
+                        if ($user->id != $this->user->id) {
+                            if ($user->pivot->permission == 3) {
+                                $userIdsWithPermissionLevel3[] = $user->id;
+                            } elseif ($user->pivot->permission == 2) {
+                                $userIdsWithPermissionLevel2[] = $user->id;
+                            } else {
+                                $userIdsWithPermissionLevel1[] = $user->id;
+                            }
+                        }
+                    }
+                    if (count($userIdsWithPermissionLevel3) == 0) {
+                        if (count($userIdsWithPermissionLevel2) > 0) {
+                            $selectedUserId = $userIdsWithPermissionLevel2[rand(0, count($userIdsWithPermissionLevel2)-1)];
+                            $archive_box->users()->updateExistingPivot($selectedUserId, ['permission' => 3]);
+                            $changed_permission_of_user_in_archive_box[] = [
+                                'archive_box' => $archive_box,
+                                'user' => User::find($selectedUserId),
+                            ];
+                        } else {
+                            $selectedUserId = $userIdsWithPermissionLevel1[rand(0, count($userIdsWithPermissionLevel1)-1)];
+                            $archive_box->users()->updateExistingPivot($selectedUserId, ['permission' => 3]);
+                            $changed_permission_of_user_in_archive_box[] = [
+                                'archive_box' => $archive_box,
+                                'user' => User::find($selectedUserId),
+                            ];
+                        }
+                    }
+                } else {
+                    $deleted_archive_boxes[] = [
+                        'archive_box_name' => $archive_box->name,
+                        'archive_box_slug' => $archive_box->slug,
+                        'archive_box_cover' => $archive_box->cover,
+                    ];
+                    foreach ($archive_box->files as $file) {
+                        $file->likes()->detach();
+                    }
+                    $archive_box->files()->delete();
+                    $archive_box->users()->detach();
+                    $archive_box->delete();
+                }
+            }
+            $this->user->likes()->detach();
+            $this->user->archiveBoxes()->detach();
+            $this->user->profile()->delete();
+            $this->user->delete();
+            $result = true;
+        }, attempts: 100);
+        if ($result) {
+            if ($user_avatar != 'default-avatar-white.svg') {
+                Storage::disk('public')->delete('avatars/'.$user_avatar);
+            }
+            foreach ($changed_permission_of_user_in_archive_box as $permission_change) {
+                PermissionChanged::dispatch($permission_change['archive_box'], $permission_change['user'], true);
+            }
+            foreach ($deleted_archive_boxes as $archive_box) {
+                Storage::disk('public')->delete('covers/'.$archive_box['archive_box_cover']);
+                Storage::disk('local')->deleteDirectory($archive_box['archive_box_slug']);
+                ArchiveBoxDeleted::dispatch($archive_box['archive_box_name']);
+            }
+            if (count($archive_boxes) > 0) {
+                foreach ($archive_boxes as $archive_box) {
+                    Deleted::dispatch($user_name, $archive_box);
+                }
+            } else {
+                Deleted::dispatch($user_name);
+            }
+            $this->success('Account deleted successfully.', position: 'toast-bottom', timeout: 10000, redirectTo: route('auth.logout'));
+        } else {
+            $this->error('Failed to delete account.', position: 'toast-bottom', timeout: 10000);
+        }
     }
 }

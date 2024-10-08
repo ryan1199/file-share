@@ -40,6 +40,18 @@ class Index extends Component
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('description', 'like', '%'.$this->search.'%')->orWhere('extension', 'like', '%'.$this->search.'%');
         })->orderBy(...array_values($this->sortBy))->simplePaginate(10);
     }
+    public function notifyNewFile($event)
+    {
+        $this->info('New file: '.$event['file']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyDeletedFile($event)
+    {
+        $this->info('Deleted file: '.$event['fileName'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyUpdatedFile($event)
+    {
+        $this->info('Updated file: '.$event['file']['name'], position: 'toast-bottom', timeout: 10000);
+    }
     #[Computed(cache: true)]
     public function headers(): array
     {
@@ -75,5 +87,16 @@ class Index extends Component
     {
         $this->authorize('delete', [File::class, $file, $this->archiveBox]);
         $this->dispatch('file.delete', $file)->to(Edit::class);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Created" => 'files',
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Created" => 'notifyNewFile',
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Deleted" => 'files',
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Deleted" => 'notifyDeletedFile',
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Updated" => 'files',
+            "echo:archive-box.show.{$this->archiveBox->slug}.file.index,File\Updated" => 'notifyUpdatedFile',
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Events\User\Created;
 use App\Mail\RequestEmailVerificationSended;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -67,7 +68,8 @@ class Register extends Component
             $this->avatar->storeAs('avatars', $avatar_name, 'public');
             Mail::to($user)->send(new RequestEmailVerificationSended($user));
             $this->reset();
-            $this->success('Registration successful. You need to verify your email address. Check your inbox', position: 'toast-bottom', redirectTo: route('welcome'));
+            $this->success('Registration successful. You need to verify your email address. Check your inbox', position: 'toast-bottom', redirectTo: route('archive-box.index'));
+            Created::dispatch($user);
         } else {
             $this->error('An error occurred while registering. Please try again later.', position: 'toast-bottom');
         }

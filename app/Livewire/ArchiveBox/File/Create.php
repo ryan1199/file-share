@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ArchiveBox\File;
 
+use App\Events\File\Created;
 use App\Models\ArchiveBox;
 use App\Models\File;
 use Illuminate\Support\Facades\DB;
@@ -48,8 +49,8 @@ class Create extends Component
         $file_extension = $this->file->getClientOriginalExtension();
         $file_name = Str::random(100).'.'.$file_extension;
         $result = false;
-        DB::transaction(function () use ($slug, $file_name, $file_size, $file_extension, &$result) {
-            $this->archiveBox->files()->create([
+        $file = DB::transaction(function () use ($slug, $file_name, $file_size, $file_extension, &$result) {
+            $file = $this->archiveBox->files()->create([
                 'name' => $this->name,
                 'description' => $this->description,
                 'slug' => $slug,
@@ -58,13 +59,15 @@ class Create extends Component
                 'size' => $file_size,
             ]);
             $result = true;
+            return $file;
         });
         if ($result) {
             $this->file->storeAs($this->archiveBox->slug, $file_name, 'local');
             $this->resetExcept('archiveBox');
-            $this->success('File uploaded successfully', 'success');
+            $this->success('File uploaded successfully', position: 'toast-bottom');
+            Created::dispatch($this->archiveBox, $file);
         } else {
-            $this->error('Failed to upload file', 'error');
+            $this->error('Failed to upload file', position: 'toast-bottom');
         }
     }
     public function cancel()

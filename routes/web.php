@@ -12,7 +12,6 @@ use App\Livewire\Auth\ResetPassword;
 use App\Livewire\File\Show as FileShow;
 use App\Livewire\User\Index;
 use App\Livewire\User\Show;
-use App\Livewire\Welcome;
 use App\Mail\RequestEmailVerificationSended;
 use App\Models\File;
 use App\Models\User;
@@ -29,7 +28,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', Welcome::class)->name('welcome');
 Route::get('register', Register::class)->middleware('should.not.login')->name('auth.register');
 Route::get('login', Login::class)->middleware('should.not.login')->name('auth.login');
 Route::get('logout', Logout::class)->middleware('should.login')->name('auth.logout');
@@ -47,6 +45,13 @@ Route::get('/mailable/email-verification', function () {
  
     return new RequestEmailVerificationSended($user);
 })->name('test.mail.email-verification');
-// implement queue for email sending (not yet)
+Route::fallback(function () {
+    return abort(404);
+});
+// implement queue for email sending (done)
 // create middleware (done)
 // create policy (done)
+// broadcast for likes, Views, and downloads (done)
+// broadcast for user (done)
+// custom error page (not satisfied)
+// create logs for user and archive box (not yet)

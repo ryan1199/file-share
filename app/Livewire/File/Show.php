@@ -2,8 +2,11 @@
 
 namespace App\Livewire\File;
 
+use App\Events\File\Liked;
+use App\Events\File\Viewed;
 use App\Models\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Mary\Traits\Toast;
@@ -12,6 +15,7 @@ class Show extends Component
 {
     use Toast;
 
+    #[Locked]
     public File $file;
     public $likes = 0;
     public $views = 0;
@@ -80,6 +84,7 @@ class Show extends Component
                 'views' => $this->file->views + 1,
             ]);
         }
+        Viewed::dispatch($this->file);
         $this->likes = $this->file->likes->count();
         $this->views = $this->file->views;
         $this->downloads = $this->file->downloads;
@@ -88,16 +93,62 @@ class Show extends Component
     {
         if (Auth::check()) {
             if (!$this->file->likes->contains(Auth::id())) {
-                $this->file->likes()->attach(Auth::id());
-                $this->toast('success','Liked successfully!', position: 'toast-bottom');
+                $result = false;
+                DB::transaction(function () use (&$result) {
+                    $this->file->likes()->attach(Auth::id());
+                    $result = true;
+                }, attempts: 100);
+                if ($result) {
+                    $this->toast('success','Liked successfully!', position: 'toast-bottom');
+                } else {
+                    if (File::find($this->file->id) != null) {
+                        $this->toast('error','Failed to like this file.', position: 'toast-bottom');
+                    } else {
+                        $this->toast('error','Failed to like this file because file does not exists', position: 'toast-bottom');
+                    }
+                }
             } else {
-                $this->file->likes()->detach(Auth::id());
-                $this->toast('success','Unliked successfully!', position: 'toast-bottom');
+                $result = false;
+                DB::transaction(function () use (&$result) {
+                    $this->file->likes()->detach(Auth::id());
+                    $result = true;
+                }, attempts: 100);
+                if ($result) {
+                    $this->toast('success','Unliked successfully!', position: 'toast-bottom');
+                } else {
+                    if (File::find($this->file->id) != null) {
+                        $this->toast('error','Failed to unlike this file.', position: 'toast-bottom');
+                    } else {
+                        $this->toast('error','Failed to unlike this file because file does not exists', position: 'toast-bottom');
+                    }
+                }
             }
             $this->likes = $this->file->likes()->count();
             $this->file->load('likes');
+            Liked::dispatch($this->file);
         } else {
             $this->toast('error','Please login to like this file.', position: 'toast-bottom');
         }
+    }
+    public function loadLikes()
+    {
+        $this->likes = $this->file->likes()->count();
+        $this->file->load('likes');
+    }
+    public function loadViews()
+    {
+        $this->views = $this->file->views;
+    }
+    public function loadDownloads()
+    {
+        $this->downloads = $this->file->downloads;
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:file.show.{$this->file->slug},File\Liked" => 'loadLikes',
+            "echo:file.show.{$this->file->slug},File\Viewed" => 'loadViews',
+            "echo:file.show.{$this->file->slug},File\Downloaded" => 'loadDownloads',
+        ];
     }
 }

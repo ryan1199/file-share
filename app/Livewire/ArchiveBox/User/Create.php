@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ArchiveBox\User;
 
+use App\Events\ArchiveBox\User\Added;
 use App\Models\ArchiveBox;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -70,8 +71,32 @@ class Create extends Component
         }, attempts: 100);
         if ($result) {
             $this->success('User added to archive box successfully', position: 'toast-bottom');
+            Added::dispatch($this->archiveBox, $user);
         } else {
             $this->error('Failed to add user to archive box', position: 'toast-bottom');
         }
+    }
+    public function notifyNewUser($event)
+    {
+        $this->info('New user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyDeletedUser($event)
+    {
+        $this->info('Deleted user: '.$event['userName'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyUpdatedUser($event)
+    {
+        $this->info('Updated user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:archive-box.user.create,User\Created" => 'users',
+            "echo:archive-box.user.create,User\Created" => 'notifyNewUser',
+            "echo:archive-box.user.create,User\Deleted" => 'users',
+            "echo:archive-box.user.create,User\Deleted" => 'notifyDeletedUser',
+            "echo:archive-box.user.create,User\Updated" => 'users',
+            "echo:archive-box.user.create,User\Updated" => 'notifyUpdatedUser',
+        ];
     }
 }

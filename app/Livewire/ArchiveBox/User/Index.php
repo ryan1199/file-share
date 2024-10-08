@@ -19,9 +19,7 @@ class Index extends Component
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
     #[Locked]
     public ArchiveBox $archiveBox;
-    #[Locked]
     public $showUpdateUser = false;
-    #[Locked]
     public $showNewUser = false;
 
     public function render()
@@ -56,5 +54,40 @@ class Index extends Component
     public function updatedSortBy()
     {
         $this->resetPage();
+    }
+    public function notifyUserAddedToTheArchiveBox($event)
+    {
+        $this->info('User added: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyUserRemovedFromTheArchiveBox($event)
+    {
+        $this->info('User removed: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyPermissionOfUserChanged($event)
+    {
+        $this->info('Permission of user changed: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyUpdatedUser($event)
+    {
+        $this->info('Updated user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyDeletedUser($event)
+    {
+        $this->info('Deleted user: '.$event['userName'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\Added" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\Added" => 'notifyUserAddedToTheArchiveBox',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\PermissionChanged" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\PermissionChanged" => 'notifyPermissionOfUserChanged',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\Removed" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,ArchiveBox\User\Removed" => 'notifyUserRemovedFromTheArchiveBox',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,User\Updated" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,User\Updated" => 'notifyUpdatedUser',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,User\Deleted" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.index,User\Deleted" => 'notifyDeletedUser',
+        ];
     }
 }

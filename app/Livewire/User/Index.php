@@ -54,4 +54,27 @@ class Index extends Component
     {
         $this->search = $search;
     }
+    public function notifyNewUser($event)
+    {
+        $this->info('New user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyDeletedUser($event)
+    {
+        $this->info('Deleted user: '.$event['userName'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyUpdatedUser($event)
+    {
+        $this->info('Updated user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:user.index,User\Created" => 'users',
+            "echo:user.index,User\Created" => 'notifyNewUser',
+            "echo:user.index,User\Deleted" => 'users',
+            "echo:user.index,User\Deleted" => 'notifyDeletedUser',
+            "echo:user.index,User\Updated" => 'users',
+            "echo:user.index,User\Updated" => 'notifyUpdatedUser',
+        ];
+    }
 }

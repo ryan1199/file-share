@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ArchiveBox;
 
+use App\Events\ArchiveBox\Created;
 use App\Models\ArchiveBox;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +64,7 @@ class Create extends Component
             $this->cover->storeAs('covers', $cover_name, 'public');
             $this->reset();
             $this->success('Archive box created successfully.', position: 'toast-bottom', redirectTo: route('archive-box.show', $archiveBox->slug));
+            Created::dispatch($archiveBox, $this->user());
         } else {
             $this->error('Failed to create archive box.', position: 'toast-bottom');
         }

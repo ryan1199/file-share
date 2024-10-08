@@ -42,7 +42,7 @@ class Login extends Component
                 $this->error('Email not verified, please verify your email address first.', position: 'toast-bottom');
             } else {
                 $this->reset();
-                $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('welcome'));
+                $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('archive-box.index'));
             }
         } else {
             $this->error('Invalid credentials. Please try again.', position: 'toast-bottom');

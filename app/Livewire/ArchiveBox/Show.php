@@ -14,9 +14,7 @@ class Show extends Component
     
     #[Locked]
     public ArchiveBox $archiveBox;
-    #[Locked]
     public $showSetting = false;
-    #[Locked]
     public $showUploadFile = false;
     
     public function render()
@@ -38,5 +36,20 @@ class Show extends Component
     {
         $this->archiveBox = $archiveBox;
         $this->archiveBox->load('users');
+    }public function loadUpdatedArchiveBox($event)
+    {
+        $this->archiveBox = ArchiveBox::find($event['archiveBox']['id']);
+        $this->archiveBox->load('users');
+    }
+    public function notifyUpdatedArchiveBox($event)
+    {
+        $this->info('Updated archive box: '.$event['archiveBox']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:archive-box.show.{$this->archiveBox->slug},ArchiveBox\Updated" => 'loadUpdatedArchiveBox',
+            "echo:archive-box.show.{$this->archiveBox->slug},ArchiveBox\Updated" => 'notifyUpdatedArchiveBox',
+        ];
     }
 }

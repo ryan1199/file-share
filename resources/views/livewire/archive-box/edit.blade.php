@@ -17,6 +17,10 @@
     </div>
  
     <x-slot:actions>
+        <x-dropdown label="Delete ?" class="btn-warning">
+            <x-menu-item title="Yes" wire:click.stop="deleteArchiveBox" spinner="deleteArchiveBox" icon="o-trash" />
+            <x-menu-item title="No" icon="o-x-mark" />
+        </x-dropdown>
         <x-button label="Cancel" class="btn-secondary" wire:click="cancelUpdateArchiveBox" />
         <x-button label="Update" class="btn-primary" type="submit" spinner="updateArchiveBox" />
     </x-slot:actions>

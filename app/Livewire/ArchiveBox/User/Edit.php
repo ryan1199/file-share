@@ -2,6 +2,8 @@
 
 namespace App\Livewire\ArchiveBox\User;
 
+use App\Events\ArchiveBox\User\PermissionChanged;
+use App\Events\ArchiveBox\User\Removed;
 use App\Models\ArchiveBox;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +74,7 @@ class Edit extends Component
         }, attempts: 100);
         if ($result) {
             $this->success('User permission updated successfully', position: 'toast-bottom');
+            PermissionChanged::dispatch($this->archiveBox, $user);
         } else {
             $this->error('Failed to update user permission', position: 'toast-bottom');
         }
@@ -86,8 +89,26 @@ class Edit extends Component
         }, attempts: 100);
         if ($result) {
             $this->success('User removed from archive box successfully', position: 'toast-bottom');
+            Removed::dispatch($this->archiveBox, $user);
         } else {
             $this->error('Failed to remove user from archive box', position: 'toast-bottom');
         }
+    }
+    public function notifyUpdatedUser($event)
+    {
+        $this->info('Updated user: '.$event['user']['name'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function notifyDeletedUser($event)
+    {
+        $this->info('Deleted user: '.$event['userName'], position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.edit,User\Updated" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.edit,User\Updated" => 'notifyUpdatedUser',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.edit,User\Deleted" => 'users',
+            "echo:archive-box.show.{$this->archiveBox->slug}.user.edit,User\Deleted" => 'notifyDeletedUser',
+        ];
     }
 }

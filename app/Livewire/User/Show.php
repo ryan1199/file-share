@@ -42,4 +42,20 @@ class Show extends Component
         $this->user = $user;
         $this->user->load('profile');
     }
+    public function loadUpdatedUser($event)
+    {
+        $this->user = User::find($event['user']['id']);
+        $this->user->load('profile');
+    }
+    public function notifyUpdatedUser($event)
+    {
+        $this->info($event['user']['name'].' updates some datas', position: 'toast-bottom', timeout: 10000);
+    }
+    public function getListeners()
+    {
+        return [
+            "echo:user.show.{$this->user->slug},User\Updated" => 'loadUpdatedUser',
+            "echo:user.show.{$this->user->slug},User\Updated" => 'notifyUpdatedUser',
+        ];
+    }
 }

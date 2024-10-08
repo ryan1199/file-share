@@ -2,7 +2,10 @@
 
 namespace App\Livewire\ArchiveBox;
 
+use App\Events\ArchiveBox\Deleted;
+use App\Events\ArchiveBox\Updated;
 use App\Models\ArchiveBox;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -114,6 +117,7 @@ class Edit extends Component
             $this->description = $this->archiveBox->description;
             $this->private = $this->archiveBox->private;
             $this->success('Archive box updated successfully', position: 'toast-bottom');
+            Updated::dispatch($this->archiveBox, Auth::user());
         } else {
             $this->error('Failed to update archive box', position: 'toast-bottom');
         }
@@ -125,5 +129,33 @@ class Edit extends Component
         $this->private = (bool) $this->archiveBox->private;
         $this->cover = asset('storage/covers/'.$this->archiveBox->cover);
         $this->success('Form cleared', position: 'toast-bottom');
+    }
+    public function deleteArchiveBox()
+    {
+        $this->authorize('delete', [ArchiveBox::class, $this->archiveBox]);
+        $archiveBoxName = $this->archiveBox->name;
+        $archiveBoxSlug = $this->archiveBox->slug;
+        $archiveBoxCover = $this->archiveBox->cover;
+        $archiveBoxUsers = $this->archiveBox->users()->get();
+        $result = false;
+        DB::transaction(function () use (&$result) {
+            foreach ($this->archiveBox->files()->get() as $files) {
+                $files->likes()->detach();
+            }
+            $this->archiveBox->files()->delete();
+            $this->archiveBox->users()->detach();
+            $this->archiveBox->delete();
+            $result = true;
+        }, attempts: 100);
+        if ($result) {
+            Storage::disk('public')->delete('covers/'.$archiveBoxCover);
+            Storage::disk('local')->deleteDirectory($archiveBoxSlug);
+            $this->success('Archive box deleted successfully', position: 'toast-bottom', timeout: 10000, redirectTo: route('archive-box.index'));
+            foreach ($archiveBoxUsers as $user) {
+                Deleted::dispatch($archiveBoxName, $user->id);
+            }
+        } else {
+            $this->error('Failed to delete archive box', position: 'toast-bottom', timeout: 10000);
+        }
     }
 }

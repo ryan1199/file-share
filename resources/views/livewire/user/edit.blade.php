@@ -1,6 +1,6 @@
 <div class="w-screen max-w-xs sm:max-w-md h-fit flex flex-col space-x-0 space-y-4">
     <x-tabs wire:model="selectedTab" class="w-full justify-stretch justify-items-stretch content-stretch items-stretch">
-        <x-tab name="profile" label="Profile" icon="o-users">
+        <x-tab name="profile" label="Profile" icon="o-clipboard-document-list">
             <x-form wire:submit="updateProfile">
                 <x-file wire:model="avatar" label="Avatar" hint="Select an image" accept="image/*" crop-after-change>
                     <img src="{{ $avatar ?? asset('storage/avatars/default-avatar-white.svg') }}" class="h-40" />
@@ -16,7 +16,7 @@
                 </x-slot:actions>
             </x-form>
         </x-tab>
-        <x-tab name="password" label="Password" icon="o-sparkles">
+        <x-tab name="password" label="Password" icon="o-lock-closed">
             <x-form wire:submit="updatePassword" x-data="{ show_password: false, show_password_confirmation: false }">
                 <x-input x-bind:type="show_password ? 'text' : 'password'" label="Password" icon="o-lock-closed" hint="Secure password" wire:model="password" error-field="password" clearable />
                 <div class="w-fit ml-auto">
@@ -32,6 +32,12 @@
                     <x-button label="Change" class="btn-primary" type="submit" spinner="updatePassword" />
                 </x-slot:actions>
             </x-form>
+        </x-tab>
+        <x-tab name="account" label="Account" icon="o-users">
+            <x-dropdown label="Delete ?" class="btn-warning">
+                <x-menu-item title="Yes" wire:click.stop="deleteAccount" spinner="deleteAccount" icon="o-trash" />
+                <x-menu-item title="No" icon="o-x-mark" />
+            </x-dropdown>
         </x-tab>
     </x-tabs>
 </div>

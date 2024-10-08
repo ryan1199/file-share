@@ -2,6 +2,8 @@
 
 namespace App\Livewire\ArchiveBox\File;
 
+use App\Events\File\Deleted;
+use App\Events\File\Updated;
 use App\Models\ArchiveBox;
 use App\Models\File;
 use Illuminate\Support\Facades\Auth;
@@ -143,6 +145,7 @@ class Edit extends Component
             }
             $this->reset('changedUploadFile');
             $this->success('File updated successfully', position: 'toast-bottom');
+            Updated::dispatch($this->archiveBox, $this->file);
         } else {
             $this->error('Failed to update file', position: 'toast-bottom');
         }
@@ -152,15 +155,17 @@ class Edit extends Component
     {
         $this->authorize('delete', [File::class, $file, $this->archiveBox]);
         $result = false;
-        $fileName = $file->path;
+        $filePath = $file->path;
+        $fileName = $file->name;
         DB::transaction(function () use ($file, &$result) {
             $file->likes()->detach();
             $file->delete();
             $result = true;
         }, attempts: 100);
         if ($result) {
-            Storage::delete($this->archiveBox->slug.'/'.$fileName);
+            Storage::delete($this->archiveBox->slug.'/'.$filePath);
             $this->success('File deleted successfully', position: 'toast-bottom');
+            Deleted::dispatch($this->archiveBox, $fileName);
         } else {
             $this->error('Failed to delete file', position: 'toast-bottom');
         }
