@@ -20,6 +20,9 @@ Broadcast::channel('user.index');
 Broadcast::channel('user.show.{user}.archive-box.index', function (User $user) {
     return (User::find($user->id) != null) ? true : false;
 });
+Broadcast::channel('user.show.{user}.log.index', function (User $user) {
+    return (User::find($user->id) != null) ? true : false;
+});
 Broadcast::channel('archive-box.index');
 Broadcast::channel('archive-box.user.create');
 Broadcast::channel('archive-box.show.{archiveBox}', function (ArchiveBox $archiveBox) {
@@ -29,6 +32,9 @@ Broadcast::channel('archive-box.show.{archiveBox}.file.index', function (Archive
     return (ArchiveBox::find($archiveBox->id) != null) ? true : false;
 });
 Broadcast::channel('archive-box.show.{archiveBox}.user.index', function (ArchiveBox $archiveBox) {
+    return (ArchiveBox::find($archiveBox->id) != null) ? true : false;
+});
+Broadcast::channel('archive-box.show.{archiveBox}.log.index', function (ArchiveBox $archiveBox) {
     return (ArchiveBox::find($archiveBox->id) != null) ? true : false;
 });
 Broadcast::channel('archive-box.show.{archiveBox}.user.edit', function (ArchiveBox $archiveBox) {

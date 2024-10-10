@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ArchiveBox\File;
 
+use App\Events\ArchiveBox\Log\Created;
 use App\Events\File\Deleted;
 use App\Events\File\Updated;
 use App\Models\ArchiveBox;
@@ -122,6 +123,9 @@ class Edit extends Component
         }
         $result = false;
         DB::transaction(function () use ($uploadFileName, $uploadFileExtension, $uploadFileSize, &$result) {
+            $oldName = $this->file->name;
+            $oldDescription = $this->file->description;
+            $oldFile = $this->file->path;
             if ($this->changedUploadFile) {
                 $this->file->update([
                     'name' => $this->name,
@@ -130,10 +134,34 @@ class Edit extends Component
                     'extension' => $uploadFileExtension,
                     'size' => $uploadFileSize,
                 ]);
+                if ($oldFile != $uploadFileName) {
+                    $this->archiveBox->logs()->create([
+                        'user_id' => Auth::id(),
+                        'user_name' => Auth::user()->name,
+                        'user_slug' => Auth::user()->slug,
+                        'message' => 'File changed: '.$this->file->slug.'/'.$this->name,
+                    ]);
+                }
             } else {
                 $this->file->update([
                     'name' => $this->name,
                     'description' => $this->description,
+                ]);
+            }
+            if ($oldName != $this->name) {
+                $this->archiveBox->logs()->create([
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'user_slug' => Auth::user()->slug,
+                    'message' => 'File renamed: '.$this->file->slug.'/'.$oldName.' to '.$this->file->slug.'/'.$this->name,
+                ]);
+            }
+            if ($oldDescription!= $this->description) {
+                $this->archiveBox->logs()->create([
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'user_slug' => Auth::user()->slug,
+                    'message' => 'File description changed: '.$this->file->slug.'/'.$this->name,
                 ]);
             }
             $result = true;
@@ -146,6 +174,7 @@ class Edit extends Component
             $this->reset('changedUploadFile');
             $this->success('File updated successfully', position: 'toast-bottom');
             Updated::dispatch($this->archiveBox, $this->file);
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to update file', position: 'toast-bottom');
         }
@@ -159,6 +188,12 @@ class Edit extends Component
         $fileName = $file->name;
         DB::transaction(function () use ($file, &$result) {
             $file->likes()->detach();
+            $this->archiveBox->logs()->create([
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name,
+                'user_slug' => Auth::user()->slug,
+                'message' => 'File deleted: '.$this->file->slug.'/'.$this->file->name,
+            ]);
             $file->delete();
             $result = true;
         }, attempts: 100);
@@ -166,6 +201,7 @@ class Edit extends Component
             Storage::delete($this->archiveBox->slug.'/'.$filePath);
             $this->success('File deleted successfully', position: 'toast-bottom');
             Deleted::dispatch($this->archiveBox, $fileName);
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to delete file', position: 'toast-bottom');
         }

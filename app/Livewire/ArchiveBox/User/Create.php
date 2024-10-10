@@ -2,9 +2,11 @@
 
 namespace App\Livewire\ArchiveBox\User;
 
+use App\Events\ArchiveBox\Log\Created;
 use App\Events\ArchiveBox\User\Added;
 use App\Models\ArchiveBox;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -67,11 +69,18 @@ class Create extends Component
         $result = false;
         DB::transaction(function () use ($user, $permission, &$result) {
             $this->archiveBox->users()->attach($user->id, ['permission' => $permission]);
+            $this->archiveBox->logs()->create([
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name,
+                'user_slug' => Auth::user()->slug,
+                'message' => $user->slug.'/'.$user->name.' added to archive box',
+            ]);
             $result = true;
         }, attempts: 100);
         if ($result) {
             $this->success('User added to archive box successfully', position: 'toast-bottom');
             Added::dispatch($this->archiveBox, $user);
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to add user to archive box', position: 'toast-bottom');
         }

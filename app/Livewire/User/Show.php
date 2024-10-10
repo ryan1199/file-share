@@ -13,10 +13,9 @@ class Show extends Component
 
     #[Locked]
     public User $user;
-    #[Locked]
     public $showSetting = false;
-    #[Locked]
     public $showCreateArchiveBox = false;
+    public $showLogs = false;
 
     public function render()
     {

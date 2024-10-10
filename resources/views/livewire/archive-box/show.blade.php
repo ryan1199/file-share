@@ -23,6 +23,16 @@
                 class="w-fit">
                 @livewire('archive-box.file.create', ['archiveBox' => $archiveBox], key(rand()))
             </x-drawer>
+            <x-drawer
+                wire:model="showLogs"
+                title="Logs"
+                subtitle="All activities of this archive box"
+                separator
+                with-close-button
+                close-on-escape
+                class="w-fit">
+                @livewire('archive-box.log.index', ['archiveBox' => $archiveBox], key(rand()))
+            </x-drawer>
         @endif
     @endauth
     <div class="w-full h-fit grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
@@ -46,6 +56,9 @@
                             @endif
                             @if ($archiveBox->users->where('pivot.permission', 3)->contains(Auth::id()))
                                 <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showSetting = true" responsive />
+                            @endif
+                            @if ($archiveBox->users->whereIn('pivot.permission', [2,3])->contains(Auth::id()))
+                                <x-button label="Logs" icon="o-book-open" @click="$wire.showLogs = true" responsive />
                             @endif
                         @endauth
                     </x-slot:actions>

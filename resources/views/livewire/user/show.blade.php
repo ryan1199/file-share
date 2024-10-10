@@ -9,7 +9,7 @@
                 with-close-button
                 close-on-escape
                 class="w-fit">
-                @livewire('user.edit', ['user' => $user])
+                @livewire('user.edit', ['user' => $user], key(rand()))
             </x-drawer>
             <x-drawer
                 wire:model="showCreateArchiveBox"
@@ -19,7 +19,17 @@
                 with-close-button
                 close-on-escape
                 class="w-fit">
-                @livewire('archive-box.create')
+                @livewire('archive-box.create', key(rand()))
+            </x-drawer>
+            <x-drawer
+                wire:model="showLogs"
+                title="Logs"
+                subtitle="All activities of this user"
+                separator
+                with-close-button
+                close-on-escape
+                class="w-fit">
+                @livewire('user.log.index', ['user' => $user], key(rand()))
             </x-drawer>
         @endif
     @endauth
@@ -55,9 +65,10 @@
                 @if ($user->id == Auth::id())
                     <x-button label="Create Archive Box" icon="o-archive-box" @click="$wire.showCreateArchiveBox = true" />
                     <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showSetting = true" />
+                    <x-button label="Logs" icon="o-book-open" @click="$wire.showLogs = true" />
                 @endif
             @endauth
         </x-slot:actions>
     </x-card>
-    @livewire('user.archive-box.index', ['user' => $user])
+    @livewire('user.archive-box.index', ['user' => $user], key(rand()))
 </div>

@@ -3,9 +3,12 @@
 namespace App\Livewire\User;
 
 use App\Events\ArchiveBox\Deleted as ArchiveBoxDeleted;
+use App\Events\ArchiveBox\Log\Created as LogCreated;
 use App\Events\ArchiveBox\User\PermissionChanged;
 use App\Events\User\Deleted;
+use App\Events\User\Log\Created;
 use App\Events\User\Updated;
+use App\Models\Log;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -113,14 +116,38 @@ class Edit extends Component
         }
         $result = false;
         DB::transaction(function () use ($avatar_name, &$result) {
+            $old_name = $this->user->name;
+            $old_avatar = $this->user->avatar;
+            $old_dob = $this->profile->date_of_birth;
+            $old_links = ($this->profile->links != null) ? explode(" ", $this->profile->links) : null;
+            $old_status = $this->profile->status;
             if ($this->changedAvatar) {
                 $this->user->update([
                     'name' => $this->name,
                     'avatar' => $avatar_name,
                 ]);
+                if ($old_avatar != $avatar_name) {
+                    $this->user->logs()->create([
+                        'user_id' => $this->user->id,
+                        'user_name' => $this->user->name,
+                        'user_slug' => $this->user->slug,
+                        'message' => 'Profile updated, and avatar changed',
+                    ]);
+                }
             } else {
                 $this->user->update([
                     'name' => $this->name,
+                ]);
+            }
+            if ($old_name != $this->name) {
+                $this->user->logs()->create([
+                    'user_id' => $this->user->id,
+                    'user_name' => $this->user->name,
+                    'user_slug' => $this->user->slug,
+                    'message' => 'Profile updated, and name changed to '.$this->name,
+                ]);
+                Log::where('user_slug', $this->user->slug)->update([
+                    'user_name' => $this->user->name,
                 ]);
             }
             $this->profile->update([
@@ -128,6 +155,30 @@ class Edit extends Component
                 'links' => implode(" ", $this->links),
                 'status' => $this->status,
             ]);
+            if ($old_dob != $this->dob) {
+                $this->user->logs()->create([
+                    'user_id' => $this->user->id,
+                    'user_name' => $this->user->name,
+                    'user_slug' => $this->user->slug,
+                    'message' => 'Profile updated, and date of birth changed to '.$this->dob,
+                ]);
+            }
+            if ($old_links != null && $old_links != $this->links) {
+                $this->user->logs()->create([
+                    'user_id' => $this->user->id,
+                    'user_name' => $this->user->name,
+                    'user_slug' => $this->user->slug,
+                    'message' => 'Profile updated, and links changed to '.implode(" ", $this->links),
+                ]);
+            }
+            if ($old_status != $this->status) {
+                $this->user->logs()->create([
+                    'user_id' => $this->user->id,
+                    'user_name' => $this->user->name,
+                    'user_slug' => $this->user->slug,
+                    'message' => 'Profile updated, and status changed to '.$this->status,
+                ]);
+            }
             $result = true;
         });
         if ($result) {
@@ -145,6 +196,7 @@ class Edit extends Component
             $this->reset('changedAvatar');
             $this->success('Profile updated successfully.', position: 'toast-bottom');
             Updated::dispatch($this->user);
+            Created::dispatch($this->user);
         } else {
             $this->error('Failed to update profile.', position: 'toast-bottom');
         }
@@ -189,11 +241,18 @@ class Edit extends Component
             $this->user->update([
                 'password' => Hash::make($this->password),
             ]);
+            $this->user->logs()->create([
+                'user_id' => $this->user->id,
+                'user_name' => $this->user->name,
+                'user_slug' => $this->user->slug,
+                'message' => 'Password changed',
+            ]);
             $result = true;
         }, attempts: 100);
         if ($result) {
             $this->success('Password updated successfully.', position: 'toast-bottom');
             $this->reset('password', 'password_confirmation');
+            Created::dispatch($this->user);
         } else {
             $this->error('Failed to update password.', position: 'toast-bottom');
         }
@@ -244,20 +303,40 @@ class Edit extends Component
                     if (count($userIdsWithPermissionLevel3) == 0) {
                         if (count($userIdsWithPermissionLevel2) > 0) {
                             $selectedUserId = $userIdsWithPermissionLevel2[rand(0, count($userIdsWithPermissionLevel2)-1)];
+                            $selectedUser = User::find($selectedUserId);
                             $archive_box->users()->updateExistingPivot($selectedUserId, ['permission' => 3]);
+                            $archive_box->logs()->create([
+                                'user_id' => $this->user->id,
+                                'user_name' => $this->user->name,
+                                'user_slug' => $this->user->slug,
+                                'message' => $selectedUser->slug.'/'.$selectedUser->name.' promoted from permission level 2 to permission leve 3',
+                            ]);
                             $changed_permission_of_user_in_archive_box[] = [
                                 'archive_box' => $archive_box,
-                                'user' => User::find($selectedUserId),
+                                'user' => $selectedUser,
                             ];
                         } else {
                             $selectedUserId = $userIdsWithPermissionLevel1[rand(0, count($userIdsWithPermissionLevel1)-1)];
+                            $selectedUser = User::find($selectedUserId);
                             $archive_box->users()->updateExistingPivot($selectedUserId, ['permission' => 3]);
+                            $archive_box->logs()->create([
+                                'user_id' => $this->user->id,
+                                'user_name' => $this->user->name,
+                                'user_slug' => $this->user->slug,
+                                'message' => $selectedUser->slug.'/'.$selectedUser->name.' promoted from permission level 1 to permission leve 3',
+                            ]);
                             $changed_permission_of_user_in_archive_box[] = [
                                 'archive_box' => $archive_box,
-                                'user' => User::find($selectedUserId),
+                                'user' => $selectedUser,
                             ];
                         }
                     }
+                    $archive_box->logs()->create([
+                        'user_id' => $this->user->id,
+                        'user_name' => $this->user->name,
+                        'user_slug' => $this->user->slug,
+                        'message' => 'Has left from this archive box',
+                    ]);
                 } else {
                     $deleted_archive_boxes[] = [
                         'archive_box_name' => $archive_box->name,
@@ -269,12 +348,14 @@ class Edit extends Component
                     }
                     $archive_box->files()->delete();
                     $archive_box->users()->detach();
+                    $archive_box->logs()->delete();
                     $archive_box->delete();
                 }
             }
             $this->user->likes()->detach();
             $this->user->archiveBoxes()->detach();
             $this->user->profile()->delete();
+            $this->user->logs()->delete();
             $this->user->delete();
             $result = true;
         }, attempts: 100);
@@ -284,6 +365,7 @@ class Edit extends Component
             }
             foreach ($changed_permission_of_user_in_archive_box as $permission_change) {
                 PermissionChanged::dispatch($permission_change['archive_box'], $permission_change['user'], true);
+                LogCreated::dispatch($permission_change['archive_box']);
             }
             foreach ($deleted_archive_boxes as $archive_box) {
                 Storage::disk('public')->delete('covers/'.$archive_box['archive_box_cover']);

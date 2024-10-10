@@ -3,6 +3,8 @@
 namespace App\Livewire\ArchiveBox;
 
 use App\Events\ArchiveBox\Created;
+use App\Events\ArchiveBox\Log\Created as ArchiveBoxLogCreated;
+use App\Events\User\Log\Created as LogCreated;
 use App\Models\ArchiveBox;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +59,18 @@ class Create extends Component
                 'private' => $this->private,
             ]);
             $archiveBox->users()->attach($this->user()->id, ['permission' => 3]);
+            $this->user()->logs()->create([
+                'user_id' => $this->user()->id,
+                'user_name' => $this->user()->name,
+                'user_slug' => $this->user()->slug,
+                'message' => 'Created an archive box named '.$archiveBox->slug.'/'.$archiveBox->name,
+            ]);
+            $archiveBox->logs()->create([
+                'user_id' => $this->user()->id,
+                'user_name' => $this->user()->name,
+                'user_slug' => $this->user()->slug,
+                'message' => 'Created by '.$this->user()->slug.'/'.$this->user()->name,
+            ]);
             $result = true;
             return $archiveBox;
         }, attempts: 100);
@@ -65,6 +79,8 @@ class Create extends Component
             $this->reset();
             $this->success('Archive box created successfully.', position: 'toast-bottom', redirectTo: route('archive-box.show', $archiveBox->slug));
             Created::dispatch($archiveBox, $this->user());
+            LogCreated::dispatch($this->user());
+            ArchiveBoxLogCreated::dispatch($archiveBox);
         } else {
             $this->error('Failed to create archive box.', position: 'toast-bottom');
         }

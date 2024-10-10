@@ -16,6 +16,7 @@ class Show extends Component
     public ArchiveBox $archiveBox;
     public $showSetting = false;
     public $showUploadFile = false;
+    public $showLogs = false;
     
     public function render()
     {

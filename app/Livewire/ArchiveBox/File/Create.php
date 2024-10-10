@@ -2,9 +2,11 @@
 
 namespace App\Livewire\ArchiveBox\File;
 
+use App\Events\ArchiveBox\Log\Created as LogCreated;
 use App\Events\File\Created;
 use App\Models\ArchiveBox;
 use App\Models\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
@@ -58,6 +60,12 @@ class Create extends Component
                 'extension' => $file_extension,
                 'size' => $file_size,
             ]);
+            $this->archiveBox->logs()->create([
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name,
+                'user_slug' => Auth::user()->slug,
+                'message' => 'File uploaded: '.$slug.'/'.$this->name,
+            ]);
             $result = true;
             return $file;
         });
@@ -66,6 +74,7 @@ class Create extends Component
             $this->resetExcept('archiveBox');
             $this->success('File uploaded successfully', position: 'toast-bottom');
             Created::dispatch($this->archiveBox, $file);
+            LogCreated::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to upload file', position: 'toast-bottom');
         }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="corporate" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html data-theme="light" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
@@ -13,8 +13,9 @@
     {{-- Flatpickr  --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://unpkg.com/pattern.css" rel="stylesheet">
 </head>
-<body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200">
+<body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200 pattern-cross-dots-md">
 
     {{-- NAVBAR mobile only --}}
     <x-nav sticky class="lg:hidden">
@@ -31,7 +32,7 @@
     {{-- MAIN --}}
     <x-main full-width>
         {{-- SIDEBAR --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
+        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100">
 
             {{-- BRAND --}}
             <x-app-brand class="p-5 pt-3" />
@@ -55,7 +56,6 @@
                     {{-- <x-menu-separator /> --}}
                 @endif
 
-                <x-menu-item title="Hello" icon="o-sparkles" link="/" />
                 <x-menu-item title="User List" icon="o-users" link="{{ route('user.index') }}" />
                 <x-menu-item title="Archive Box List" icon="o-archive-box" link="{{ route('archive-box.index') }}" />
                 @guest
@@ -66,7 +66,7 @@
                 @endguest
                 <x-menu-item title="Theme" icon="o-swatch" @click="$dispatch('mary-toggle-theme')" />
             </x-menu>
-            <x-theme-toggle darkTheme="business" lightTheme="corporate" class="hidden" />
+            <x-theme-toggle darkTheme="night" lightTheme="light" class="hidden" />
         </x-slot:sidebar>
 
         {{-- The `$slot` goes here --}}

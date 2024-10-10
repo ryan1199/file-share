@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -71,5 +72,13 @@ class User extends Authenticatable
     public function likes(): BelongsToMany
     {
         return $this->belongsToMany(File::class, table: 'like')->using(Like::class)->withTimestamps();
+    }
+    public function log(): HasOne
+    {
+        return $this->hasOne(Log::class);
+    }
+    public function logs(): MorphMany
+    {
+        return $this->morphMany(Log::class, 'loggable');
     }
 }

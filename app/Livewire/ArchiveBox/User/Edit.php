@@ -2,10 +2,13 @@
 
 namespace App\Livewire\ArchiveBox\User;
 
+use App\Events\ArchiveBox\Log\Created;
 use App\Events\ArchiveBox\User\PermissionChanged;
 use App\Events\ArchiveBox\User\Removed;
 use App\Models\ArchiveBox;
+use App\Models\ArchiveBoxUser;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -66,15 +69,24 @@ class Edit extends Component
     {
         $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
         $result = false;
-        DB::transaction(function () use ($user, $permission, &$result) {
+        $user_permission = ArchiveBoxUser::where('user_id', $user->id)->where('archive_box_id', $this->archiveBox->id)->select('permission')->first();
+        DB::transaction(function () use ($user, $permission, &$result, $user_permission) {
             $this->archiveBox->users()->where('user_id', $user->id)->update([
                 'permission' => $permission
+            ]);
+            $promoted = (int) $permission > (int) $user_permission ? ' promoted' : ' demoted';
+            $this->archiveBox->logs()->create([
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name,
+                'user_slug' => Auth::user()->slug,
+                'message' => $user->slug.'/'.$user->name.$promoted.' from permission level '.$user_permission.' to permission level '.$permission,
             ]);
             $result = true;
         }, attempts: 100);
         if ($result) {
             $this->success('User permission updated successfully', position: 'toast-bottom');
             PermissionChanged::dispatch($this->archiveBox, $user);
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to update user permission', position: 'toast-bottom');
         }
@@ -85,11 +97,18 @@ class Edit extends Component
         $result = false;
         DB::transaction(function () use ($user, &$result) {
             $this->archiveBox->users()->detach($user->id);
+            $this->archiveBox->logs()->create([
+                'user_id' => Auth::id(),
+                'user_name' => Auth::user()->name,
+                'user_slug' => Auth::user()->slug,
+                'message' => $user->slug.'/'.$user->name.' removed from archive box',
+            ]);
             $result = true;
         }, attempts: 100);
         if ($result) {
             $this->success('User removed from archive box successfully', position: 'toast-bottom');
             Removed::dispatch($this->archiveBox, $user);
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to remove user from archive box', position: 'toast-bottom');
         }

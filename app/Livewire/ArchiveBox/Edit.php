@@ -3,6 +3,7 @@
 namespace App\Livewire\ArchiveBox;
 
 use App\Events\ArchiveBox\Deleted;
+use App\Events\ArchiveBox\Log\Created;
 use App\Events\ArchiveBox\Updated;
 use App\Models\ArchiveBox;
 use Illuminate\Support\Facades\Auth;
@@ -91,6 +92,10 @@ class Edit extends Component
         }
         $result = false;
         DB::transaction(function () use ($cover_name, &$result) {
+            $old_name = $this->archiveBox->name;
+            $old_description = $this->archiveBox->description;
+            $old_private = (bool) $this->archiveBox->private;
+            $old_cover = $this->archiveBox->cover;
             if ($this->changedCover) {
                 $this->archiveBox->update([
                     'name' => $this->name,
@@ -98,11 +103,45 @@ class Edit extends Component
                     'cover' => $cover_name,
                     'private' => $this->private,
                 ]);
+                if ($old_cover != $cover_name) {
+                    $this->archiveBox->logs()->create([
+                        'user_id' => Auth::id(),
+                        'user_name' => Auth::user()->name,
+                        'user_slug' => Auth::user()->slug,
+                        'message' => 'Cover changed',
+                    ]);
+                }
             } else {
                 $this->archiveBox->update([
                     'name' => $this->name,
                     'description' => $this->description,
                     'private' => $this->private,
+                ]);
+            }
+            if ($old_name != $this->name) {
+                $this->archiveBox->logs()->create([
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'user_slug' => Auth::user()->slug,
+                    'message' => 'Name of archive box changed from '.$old_name.' to '.$this->name,
+                ]);
+            }
+            if ($old_description != $this->description) {
+                $this->archiveBox->logs()->create([
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'user_slug' => Auth::user()->slug,
+                    'message' => 'Description of archive box changed from '.$old_description.' to '.$this->description,
+                ]);
+            }
+            if ($old_private != $this->private) {
+                $private = (bool) $this->private ? 'private' : 'public';
+                $old_private = (bool) $old_private ? 'private' : 'public';
+                $this->archiveBox->logs()->create([
+                    'user_id' => Auth::id(),
+                    'user_name' => Auth::user()->name,
+                    'user_slug' => Auth::user()->slug,
+                    'message' => 'Visibility of archive box changed from '.$old_private.' to '.$private,
                 ]);
             }
             $result = true;
@@ -118,6 +157,7 @@ class Edit extends Component
             $this->private = $this->archiveBox->private;
             $this->success('Archive box updated successfully', position: 'toast-bottom');
             Updated::dispatch($this->archiveBox, Auth::user());
+            Created::dispatch($this->archiveBox);
         } else {
             $this->error('Failed to update archive box', position: 'toast-bottom');
         }
@@ -144,6 +184,7 @@ class Edit extends Component
             }
             $this->archiveBox->files()->delete();
             $this->archiveBox->users()->detach();
+            $this->archiveBox->logs()->delete();
             $this->archiveBox->delete();
             $result = true;
         }, attempts: 100);
