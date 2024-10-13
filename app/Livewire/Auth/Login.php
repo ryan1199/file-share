@@ -23,7 +23,7 @@ class Login extends Component
 
     public function render()
     {
-        return view('livewire.auth.login');
+        return view('livewire.auth.login')->title('Login');
     }
     public function login()
     {
@@ -42,7 +42,7 @@ class Login extends Component
                 $this->error('Email not verified, please verify your email address first.', position: 'toast-bottom');
             } else {
                 $this->reset();
-                $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('archive-box.index'));
+                $this->success('Login successful, Hello ' . Auth::user()->name, position: 'toast-bottom', redirectTo: route('home'));
             }
         } else {
             $this->error('Invalid credentials. Please try again.', position: 'toast-bottom');

@@ -19,6 +19,7 @@ class Index extends Component
 
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
+    public int $perPage = 10;
     #[Locked]
     public ArchiveBox $archiveBox;
     public $showEditFile = false;
@@ -38,7 +39,7 @@ class Index extends Component
     {
         return $this->archiveBox->files()->when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('description', 'like', '%'.$this->search.'%')->orWhere('extension', 'like', '%'.$this->search.'%');
-        })->orderBy(...array_values($this->sortBy))->simplePaginate(10);
+        })->orderBy(...array_values($this->sortBy))->simplePaginate($this->perPage);
     }
     public function notifyNewFile($event)
     {
@@ -74,6 +75,10 @@ class Index extends Component
         $this->resetPage();
     }
     public function updatedSortBy()
+    {
+        $this->resetPage();
+    }
+    public function updatedPerPage()
     {
         $this->resetPage();
     }

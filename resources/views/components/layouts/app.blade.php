@@ -13,10 +13,9 @@
     {{-- Flatpickr  --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <link href="https://unpkg.com/pattern.css" rel="stylesheet">
 </head>
-<body class="min-h-screen font-sans antialiased bg-base-200/50 dark:bg-base-200 pattern-cross-dots-md">
-
+<body class="min-h-screen antialiased bg-base-200/50 dark:bg-base-200 font-['Anybody']">
+    @preloadFonts
     {{-- NAVBAR mobile only --}}
     <x-nav sticky class="lg:hidden">
         <x-slot:brand>
@@ -35,7 +34,7 @@
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100">
 
             {{-- BRAND --}}
-            <x-app-brand class="p-5 pt-3" />
+            <x-app-brand class="px-5 pt-3" />    
 
             {{-- MENU --}}
             <x-menu activate-by-route>
@@ -44,7 +43,11 @@
                 @if($user = auth()->user())
                     {{-- <x-menu-separator /> --}}
 
-                    <x-list-item :item="$user" value="name" sub-value="email" link="{{ route('user.show', $user->slug) }}" no-separator no-hover class="-mx-0 !-my-0 rounded-lg bg-base-300 hover:bg-base-content/10 active:bg-base-200">
+                    @php
+                        $bg_color = url()->current() == route('user.show', Auth::user()->slug) ? 'bg-base-300' : 'bg-base-100';
+                        $bg_color = $bg_color.' -mx-0 !-my-0 rounded-lg hover:bg-base-content/10 active:bg-base-200';
+                    @endphp
+                    <x-list-item :item="$user" value="name" sub-value="email" link="{{ route('user.show', $user->slug) }}" no-separator no-hover class="{{ $bg_color }}">
                         <x-slot:avatar>
                             <x-avatar :image="asset('storage/avatars/'.$user->avatar)" class="!w-full max-w-12 !rounded-full" />
                         </x-slot:avatar>
@@ -56,15 +59,17 @@
                     {{-- <x-menu-separator /> --}}
                 @endif
 
+                <x-menu-item title="Home" icon="o-home" link="{{ route('home') }}" exact />
                 <x-menu-item title="User List" icon="o-users" link="{{ route('user.index') }}" />
                 <x-menu-item title="Archive Box List" icon="o-archive-box" link="{{ route('archive-box.index') }}" />
                 @guest
-                    <x-menu-item title="Register" icon="o-clipboard-document-list" link="{{ route('auth.register') }}" />
-                    <x-menu-item title="Login" icon="o-arrow-left-on-rectangle" link="{{ route('auth.login') }}" />
-                    <x-menu-item title="Reset Password" icon="o-lock-closed" link="{{ route('auth.reset-password') }}" />
-                    <x-menu-item title="Email Verification" icon="o-check-badge" link="{{ route('auth.email-verification') }}" />
+                    <x-menu-item title="Register" icon="o-clipboard-document-list" link="{{ route('auth.register') }}" exact />
+                    <x-menu-item title="Login" icon="o-arrow-left-on-rectangle" link="{{ route('auth.login') }}" exact />
+                    <x-menu-item title="Reset Password" icon="o-lock-closed" link="{{ route('auth.reset-password') }}" exact />
+                    <x-menu-item title="Email Verification" icon="o-check-badge" link="{{ route('auth.email-verification') }}" exact />
                 @endguest
-                <x-menu-item title="Theme" icon="o-swatch" @click="$dispatch('mary-toggle-theme')" />
+                <x-menu-item title="Theme" icon="o-swatch" @click="$dispatch('mary-toggle-theme')" exact />
+                <x-menu-item title="About" icon="o-question-mark-circle" link="{{ route('about') }}" exact />
             </x-menu>
             <x-theme-toggle darkTheme="night" lightTheme="light" class="hidden" />
         </x-slot:sidebar>

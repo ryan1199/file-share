@@ -72,7 +72,7 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.file.show');
+        return view('livewire.file.show')->title($this->file->name);
     }
     public function mount(File $file)
     {

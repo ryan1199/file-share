@@ -22,12 +22,13 @@ class Index extends Component
 
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
+    public int $perPage = 10;
 
     public function render()
     {
         return view('livewire.archive-box.index', [
             'archiveBoxes' => $this->archiveBoxes(),
-        ]);
+        ])->title('Archive Boxes');
     }
     public function archiveBoxes()
     {
@@ -43,7 +44,7 @@ class Index extends Component
             $query->where(function (Builder $query) {
                 $query->where('archive_boxes.name', 'like', '%'.$this->search.'%')->orWhere('archive_boxes.slug', 'like', '%'.$this->search.'%')->orWhere('archive_boxes.description', 'like', '%'.$this->search.'%');
             });
-        })->simplePaginate(10);
+        })->simplePaginate($this->perPage);
     }
     public function notifyNewArchiveBox($event)
     {
@@ -79,6 +80,10 @@ class Index extends Component
         $this->resetPage();
     }
     public function updatedSortBy()
+    {
+        $this->resetPage();
+    }
+    public function updatedPerPage()
     {
         $this->resetPage();
     }

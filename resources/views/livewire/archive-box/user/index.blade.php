@@ -1,16 +1,19 @@
 <x-card shadow>
     <x-header title="User List" separator progress-indicator>
         <x-slot:middle class="!justify-end">
-            <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
+            <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" class="min-w-56" />
         </x-slot:middle>
-        @if ($archiveBox->users->where('pivot.permission', 3)->contains(Auth::id()))
-            <x-slot:actions>
+        <x-slot:actions class="w-full">
+            @if ($archiveBox->users->where('pivot.permission', 3)->contains(Auth::id()))
                 <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showUpdateUser = true" responsive />
                 <x-button label="New User" icon="o-user-plus" @click="$wire.showNewUser = true" responsive />
-            </x-slot:actions>
-        @endif
+            @endif
+            @if ($archiveBox->users->whereIn('pivot.permission', [1,2,3])->contains(Auth::id()))
+                <x-button label="Quit" icon="o-arrow-left-start-on-rectangle" wire:confirm="{{ 'Quit from '.$archiveBox->name.' ?' }}" wire:click="quitFromArchiveBox" responsive />
+            @endif
+        </x-slot:actions>
     </x-header>
-
+    <x-range wire:model.live.debounce="perPage" min="1" max="100" step="1" label="Show users per page" hint="{{ 'Showing user list per page: '.$perPage }}" />
     <x-table :headers="$this->headers" :rows="$users" :sort-by="$sortBy" with-pagination >
         @scope('cell_name', $user)
             <x-avatar :image="asset('storage/avatars/'.$user->avatar)" :title="$user->name" />

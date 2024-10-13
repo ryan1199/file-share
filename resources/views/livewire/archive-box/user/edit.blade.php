@@ -1,4 +1,4 @@
-<div class="w-screen max-w-xs sm:max-w-md h-fit">
+<div class="w-screen max-w-xs sm:max-w-md md:max-w-lg h-fit">
     <div class="w-full pb-4 flex flex-col space-x-0 space-y-4">
         <x-input placeholder="Search..." wire:model.live.debounce="search" icon="o-magnifying-glass" class="mt-2" />
         <x-select label="Sort By" icon="o-funnel" :options="$availableSortBy" wire:model.live.debounce="sortBy" inline />
@@ -40,11 +40,15 @@
                                 <x-menu-item title="{{ 'Permission '.$i }}" class="bg-base-200" />
                             @endif
                             @if ($user->archive_boxes_permission != $i && $user->id != Auth::id())
-                                <x-menu-item title="{{ 'Permission '.$i }}" wire:click="updateUserPermission({{ $user->id }},{{ $i }})" />
+                                @if ($user->archive_boxes_permission != 3)
+                                    <x-menu-item title="{{ 'Permission '.$i }}" wire:click="updateUserPermission({{ $user->id }},{{ $i }})" />
+                                @endif
                             @endif
                         @endfor
                     @endif
-                    <x-menu-item title="Remove" wire:confirm="{{ 'Remove user '.$user->name.' ?' }}" wire:click="removeUser({{ $user->id }})" />
+                    @if ($user->archive_boxes_permission != 3 || $user->id == Auth::id())
+                        <x-menu-item title="Remove" wire:confirm="{{ 'Remove user '.$user->name.' ?' }}" wire:click="removeUser({{ $user->id }})" />
+                    @endif
                 </x-dropdown>
             </x-slot:actions>
         </x-list-item>

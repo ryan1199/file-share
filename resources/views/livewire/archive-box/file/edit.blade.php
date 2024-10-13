@@ -1,4 +1,4 @@
-<x-form wire:submit="update">
+<x-form wire:submit="update" class="w-screen max-w-xs sm:max-w-md md:max-w-lg">
     <x-file wire:model="uploadFile" label="File" hint="Select a file" />
     <x-input type="text" label="Name" icon="o-document" hint="File's name" wire:model="name" error-field="name" clearable inline />
     <x-textarea

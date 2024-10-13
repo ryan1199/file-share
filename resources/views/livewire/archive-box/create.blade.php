@@ -1,4 +1,4 @@
-<x-form wire:submit="store" class="w-screen max-w-xs sm:max-w-md h-fit">
+<x-form wire:submit="store" class="w-screen max-w-xs sm:max-w-md md:max-w-lg h-fit">
     <x-file wire:model="cover" label="Cover" hint="Select an image" accept="image/*" crop-after-change>
         <img src="{{ $cover ?? 'https://picsum.photos/500/200' }}" class="h-40" />
     </x-file>

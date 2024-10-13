@@ -22,20 +22,20 @@ class AppBrand extends Component
     public function render(): View|Closure|string
     {
         return <<<'HTML'
-                <a href="/" wire:navigate>
+                <a href="{{ route('home') }}" wire:navigate>
                     <!-- Hidden when collapsed -->
                     <div {{ $attributes->class(["hidden-when-collapsed"]) }}>
                         <div class="flex items-center gap-2">
-                            <x-icon name="o-archive-box" class="w-6 -mb-1 text-primary" />
-                            <span class="font-bold text-3xl me-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent ">
+                            <x-icon name="o-archive-box" class="w-6 -mb-0 text-primary" />
+                            <span class="font-bold text-3xl me-3 bg-gradient-to-tr from-primary via-secondary to-accent bg-clip-text text-transparent ">
                                 File-Share
                             </span>
                         </div>
                     </div>
 
                     <!-- Display when collapsed -->
-                    <div class="display-when-collapsed hidden mx-5 mt-4 lg:mb-6 h-[28px]">
-                        <x-icon name="s-archive-box" class="w-6 -mb-1 text-primary" />
+                    <div class="display-when-collapsed hidden mx-5 mt-4 lg:mb-0 h-[28px]">
+                        <x-icon name="s-archive-box" class="w-6 -mb-0 mx-auto text-primary" />
                     </div>
                 </a>
             HTML;

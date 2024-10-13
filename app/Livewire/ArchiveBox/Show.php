@@ -31,7 +31,7 @@ class Show extends Component
             'slug' => $slug,
             'cover' => $cover,
             'private' => $private,
-        ]);
+        ])->title($this->archiveBox->name);
     }
     public function mount(ArchiveBox $archiveBox)
     {

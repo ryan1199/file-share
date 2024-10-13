@@ -1,4 +1,4 @@
-<div class="w-screen max-w-xs sm:max-w-md h-fit">
+<div class="w-screen max-w-xs sm:max-w-md md:max-w-lg h-fit">
     <div class="w-full pb-4 flex flex-col space-x-0 space-y-4">
         <x-input placeholder="Search..." wire:model.live.debounce="search" icon="o-magnifying-glass" class="mt-2" />
         <x-select label="Sort By" icon="o-funnel" :options="$availableSortBy" wire:model.live.debounce="sortBy" inline />

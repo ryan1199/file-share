@@ -63,9 +63,11 @@
         <x-slot:actions>
             @auth
                 @if ($user->id == Auth::id())
-                    <x-button label="Create Archive Box" icon="o-archive-box" @click="$wire.showCreateArchiveBox = true" />
-                    <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showSetting = true" />
-                    <x-button label="Logs" icon="o-book-open" @click="$wire.showLogs = true" />
+                    <div class="w-full h-fit flex flex-col sm:flex-row space-x-0 space-y-2 sm:space-x-2 sm:space-y-0 justify-end">
+                        <x-button label="Create Archive Box" icon="o-archive-box" @click="$wire.showCreateArchiveBox = true" />
+                        <x-button label="Setting" icon="o-cog-6-tooth" @click="$wire.showSetting = true" />
+                        <x-button label="Logs" icon="o-book-open" @click="$wire.showLogs = true" />
+                    </div>
                 @endif
             @endauth
         </x-slot:actions>

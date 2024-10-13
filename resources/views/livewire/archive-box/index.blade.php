@@ -4,7 +4,7 @@
             <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
         </x-slot:middle>
     </x-header>
-
+    <x-range wire:model.live.debounce="perPage" min="1" max="100" step="1" label="Show archive boxes per page" hint="{{ 'Showing archive box list per page: '.$perPage }}" />
     <x-table :headers="$this->headers" :rows="$archiveBoxes" :sort-by="$sortBy" with-pagination >
         @scope('cell_slug', $archiveBox)
             <x-button label="{{ $archiveBox->slug }}" link="{{ route('archive-box.show', $archiveBox->slug) }}" icon="o-archive-box" tooltip="{{ Str::of('Visit '.$archiveBox->name)->toHtmlString() }}" responsive class="w-fit flex-nowrap" />

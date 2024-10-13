@@ -22,6 +22,6 @@ class Logout extends Component
     
         session()->regenerateToken();
 
-        $this->success('You are now logged out', position: 'toast-bottom', redirectTo: route('archive-box.index'));
+        $this->success('You are now logged out', position: 'toast-bottom', redirectTo: route('home'));
     }
 }

@@ -1,4 +1,4 @@
-<x-form wire:submit="updateArchiveBox">
+<x-form wire:submit="updateArchiveBox" class="w-screen max-w-xs sm:max-w-md md:max-w-lg">
     <x-file wire:model="cover" label="Cover" hint="Select an image" accept="image/*" crop-after-change>
         <img src="{{ $cover ?? 'https://picsum.photos/500/200' }}" class="h-40" />
     </x-file>
@@ -7,7 +7,7 @@
         label="Description"
         wire:model="description"
         placeholder="This archive box is about ..."
-        hint="Archive Box's name"
+        hint="Archive Box's description"
         rows="5"
         error-field="description"
         clearable

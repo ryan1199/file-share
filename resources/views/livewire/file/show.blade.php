@@ -1,6 +1,7 @@
 <div class="w-full container lg:max-w-3xl h-fit mx-auto grid grid-cols-1 gap-4">
     <div class="breadcrumbs text-sm">
         <ul>
+            <li><a wire:navigate href="{{ route('home') }}">Home</a></li>
             <li><a wire:navigate href="{{ route('archive-box.index') }}">Archive Box</a></li>
             <li><a wire:navigate href="{{ route('archive-box.show', $file->archiveBox->slug) }}">{{ $file->archiveBox->slug }}</a></li>
             <li><a wire:navigate href="{{ route('file.show', $file->slug) }}">{{ $file->slug }}</a></li>

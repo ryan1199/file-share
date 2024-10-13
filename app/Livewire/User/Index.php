@@ -17,18 +17,19 @@ class Index extends Component
 
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
+    public int $perPage = 10;
 
     public function render()
     {
         return view('livewire.user.index', [
             'users' => $this->users(),
-        ]);
+        ])->title('Users');
     }
     public function users()
     {
         return User::with('profile')->when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('email', 'like', '%'.$this->search.'%');
-        })->orderBy(...array_values($this->sortBy))->select(['id', 'name', 'slug', 'email', 'avatar'])->simplePaginate(10);
+        })->orderBy(...array_values($this->sortBy))->select(['id', 'name', 'slug', 'email', 'avatar'])->simplePaginate($this->perPage);
     }
     #[Computed(cache: true)]
     public function headers(): array
@@ -47,6 +48,10 @@ class Index extends Component
         $this->resetPage();
     }
     public function updatedSortBy()
+    {
+        $this->resetPage();
+    }
+    public function updatedPerPage()
     {
         $this->resetPage();
     }

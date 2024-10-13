@@ -2,7 +2,13 @@
 
 namespace App\Livewire\ArchiveBox\User;
 
+use App\Events\ArchiveBox\Log\Created;
+use App\Events\ArchiveBox\User\Removed;
+use App\Events\User\Log\Created as LogCreated;
 use App\Models\ArchiveBox;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -17,6 +23,7 @@ class Index extends Component
 
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
+    public int $perPage = 10;
     #[Locked]
     public ArchiveBox $archiveBox;
     public $showUpdateUser = false;
@@ -32,7 +39,7 @@ class Index extends Component
     {
         return $this->archiveBox->users()->withAggregate('archiveBoxes', 'permission')->when($this->search, function ($query) {
             $query->where('name', 'like', '%'.$this->search.'%')->orWhere('slug', 'like', '%'.$this->search.'%')->orWhere('email', 'like', '%'.$this->search.'%');
-        })->orderBy(...array_values($this->sortBy))->simplePaginate(10);
+        })->orderBy(...array_values($this->sortBy))->simplePaginate($this->perPage);
     }
     #[Computed(cache: true)]
     public function headers(): array
@@ -54,6 +61,40 @@ class Index extends Component
     public function updatedSortBy()
     {
         $this->resetPage();
+    }
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    public function quitFromArchiveBox()
+    {
+        $this->authorize('quitFromArchiveBox', [ArchiveBox::class, $this->archiveBox]);
+        $result = false;
+        $user = User::find(Auth::id());
+        DB::transaction(function () use (&$result, $user) {
+            $this->archiveBox->users()->detach($user->id);
+            $this->archiveBox->logs()->create([
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_slug' => $user->slug,
+                'message' => $user->slug.'/'.$user->name.' quitted from archive box',
+            ]);
+            $user->logs()->create([
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_slug' => $user->slug,
+                'message' => 'You quitted from archive box '.$this->archiveBox->slug.'/'.$this->archiveBox->name,
+            ]);
+            $result = true;
+        }, attempts: 100);
+        if ($result) {
+            $this->success('You quitted from archive box successfully', position: 'toast-bottom', redirectTo: route('archive-box.index'));
+            Removed::dispatch($this->archiveBox, $user);
+            Created::dispatch($this->archiveBox);
+            LogCreated::dispatch($user);
+        } else {
+            $this->error('Failed to quit from archive box', position: 'toast-bottom');
+        }
     }
     public function notifyUserAddedToTheArchiveBox($event)
     {

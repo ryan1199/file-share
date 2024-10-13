@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\File\Download;
 use App\Http\Controllers\File\Preview;
+use App\Livewire\About;
 use App\Livewire\ArchiveBox\Index as ArchiveBoxIndex;
 use App\Livewire\ArchiveBox\Show as ArchiveBoxShow;
 use App\Livewire\Auth\EmailVerification;
@@ -10,6 +11,7 @@ use App\Livewire\Auth\Logout;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\File\Show as FileShow;
+use App\Livewire\Home;
 use App\Livewire\User\Index;
 use App\Livewire\User\Show;
 use App\Mail\RequestEmailVerificationSended;
@@ -28,6 +30,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/', Home::class)->name('home');
+Route::get('about', About::class)->name('about');
 Route::get('register', Register::class)->middleware('should.not.login')->name('auth.register');
 Route::get('login', Login::class)->middleware('should.not.login')->name('auth.login');
 Route::get('logout', Logout::class)->middleware('should.login')->name('auth.logout');
@@ -69,5 +73,6 @@ Route::fallback(function () {
 // add log display in user page and archive box page (done)
 // log format user->slug/user->name: activity (done)
 // broadcast log (done)
-// home page spotlight of archive boxes with the most users joined (not yet)
-// about page description the purpose of this website (not yet)
+// home page spotlight of archive boxes with the most users joined (done)
+// about page description the purpose of this website (done)
+// fix redirect home (done)

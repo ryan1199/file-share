@@ -4,7 +4,7 @@
             <x-input placeholder="Search..." wire:model.live.debounce="search" clearable icon="o-magnifying-glass" />
         </x-slot:middle>
     </x-header>
-
+    <x-range wire:model.live.debounce="perPage" min="1" max="100" step="1" label="Show files per page" hint="{{ 'Showing file list per page: '.$perPage }}" />
     <x-card>
         <x-table :headers="$this->headers" :rows="$files" :sort-by="$sortBy" with-pagination >
             @scope('cell_slug', $file, $archiveBox)

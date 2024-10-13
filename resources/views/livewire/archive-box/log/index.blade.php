@@ -1,4 +1,4 @@
-<div class="max-w-sm sm:max-w-lg flex flex-col space-x-0 space-y-2">
+<div class="w-screen max-w-xs sm:max-w-md md:max-w-lg flex flex-col space-x-0 space-y-2">
     <x-toggle label="Oldest" wire:model.live="sort" class="ml-auto"/>
     <x-range wire:model.live.debounce="perPage" min="1" max="100" step="1" label="Show logs per page" hint="{{ 'Showing logs per page: '.$perPage }}" />
     @foreach ($logs as $log)

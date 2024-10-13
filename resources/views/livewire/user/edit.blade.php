@@ -1,4 +1,4 @@
-<div class="w-screen max-w-xs sm:max-w-md h-fit flex flex-col space-x-0 space-y-4">
+<div class="w-screen max-w-xs sm:max-w-md md:max-w-lg h-fit flex flex-col space-x-0 space-y-4">
     <x-tabs wire:model="selectedTab" class="w-full justify-stretch justify-items-stretch content-stretch items-stretch">
         <x-tab name="profile" label="Profile" icon="o-clipboard-document-list">
             <x-form wire:submit="updateProfile">

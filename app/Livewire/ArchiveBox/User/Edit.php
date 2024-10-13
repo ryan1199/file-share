@@ -67,9 +67,9 @@ class Edit extends Component
     }
     public function updateUserPermission(User $user, $permission)
     {
-        $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
+        $this->authorize('updateUserPermission', [ArchiveBox::class, $this->archiveBox, $user]);
         $result = false;
-        $user_permission = ArchiveBoxUser::where('user_id', $user->id)->where('archive_box_id', $this->archiveBox->id)->select('permission')->first();
+        $user_permission = ArchiveBoxUser::where('user_id', $user->id)->where('archive_box_id', $this->archiveBox->id)->first()->permission;
         DB::transaction(function () use ($user, $permission, &$result, $user_permission) {
             $this->archiveBox->users()->where('user_id', $user->id)->update([
                 'permission' => $permission
@@ -93,7 +93,7 @@ class Edit extends Component
     }
     public function removeUser(User $user)
     {
-        $this->authorize('update', [ArchiveBox::class, $this->archiveBox]);
+        $this->authorize('removeUser', [ArchiveBox::class, $this->archiveBox, $user]);
         $result = false;
         DB::transaction(function () use ($user, &$result) {
             $this->archiveBox->users()->detach($user->id);

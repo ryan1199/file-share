@@ -29,7 +29,7 @@ class EmailVerification extends Component
 
     public function render()
     {
-        return view('livewire.auth.email-verification');
+        return view('livewire.auth.email-verification')->title('Email verification');
     }
     public function mount($token = null)
     {
@@ -45,7 +45,7 @@ class EmailVerification extends Component
         } elseif ($user != null && !$validCredentials) {
             $this->error('Invalid credentials. Please try again later.', position: 'toast-bottom', timeout: 10000);
         } elseif ($user != null && $validCredentials && $user->email_verified_at != null) {
-            $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('archive-box.index'));
+            $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('home'));
         } else {
             $token = Str::random(100);
             $result = false;
@@ -79,7 +79,7 @@ class EmailVerification extends Component
                 $this->error('Invalid credentials. Please try again later.', position: 'toast-bottom', timeout: 10000);
             } else {
                 if ($user->email_verified_at != null) {
-                    $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('archive-box.index'));
+                    $this->error('Email has already been verified.', position: 'toast-bottom', redirectTo: route('home'));
                 } else {
                     $result = false;
                     DB::transaction(function () use ($user, &$result) {

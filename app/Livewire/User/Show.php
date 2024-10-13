@@ -34,7 +34,7 @@ class Show extends Component
             'dob' => $dob,
             'links' => $links,
             'status' => $status,
-        ]);
+        ])->title($this->user->name);
     }
     public function mount(User $user)
     {
